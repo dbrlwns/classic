@@ -5,6 +5,25 @@
 제품 정의와 설계 근거는 **[docs/concept.md](docs/concept.md)** 에 있습니다.
 설계 결정을 바꾸기 전에 먼저 읽으세요.
 
+## 요구사항
+
+**JDK 21.** 없으면 `./gradlew` 가 이렇게 멈춥니다.
+
+```
+Cannot find a Java installation on your machine ... matching: {languageVersion=21, ...}
+```
+
+macOS 기준 설치:
+
+```bash
+brew install --cask temurin@21
+/usr/libexec/java_home -V          # 설치 확인
+```
+
+`settings.gradle` 에 foojay toolchain resolver 를 넣어둬서 JDK 21 이 없으면
+Gradle 이 직접 받아오기는 합니다. 다만 그건 Gradle 전용이라 IDE 는 따로
+JDK 를 찾으므로, IntelliJ 등에서 열 거면 위처럼 설치해 두는 편이 낫습니다.
+
 ## 실행
 
 ```bash

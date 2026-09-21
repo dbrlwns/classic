@@ -1,1 +1,7 @@
+plugins {
+    // Java 21 이 로컬에 없으면 Gradle 이 알아서 받아오게 한다.
+    // 이게 없으면 "Cannot find a Java installation ... matching languageVersion=21" 으로 빌드가 멈춘다.
+    id 'org.gradle.toolchains.foojay-resolver-convention' version '1.0.0'
+}
+
 rootProject.name = 'classic'
