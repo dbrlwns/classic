@@ -1,0 +1,14 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<body>
+<nav class="admin-nav" th:fragment="nav">
+    <a th:href="@{/admin}">대시보드</a>
+    <a th:href="@{/admin/works/new}">곡 추가</a>
+    <a th:href="@{/admin/composers}">작곡가</a>
+    <a th:href="@{/}">사이트 보기</a>
+    <form method="post" th:action="@{/logout}" style="margin-left:auto;">
+        <button class="btn secondary small" type="submit">로그아웃</button>
+    </form>
+</nav>
+</body>
+</html>

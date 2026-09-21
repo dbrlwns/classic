@@ -1,0 +1,25 @@
+# 운영 프로파일. 진짜 콘텐츠를 넣기 시작하는 시점에 Flyway 를 붙이고 validate 로 전환한다.
+spring:
+  jpa:
+    hibernate:
+      ddl-auto: validate
+
+  datasource:
+    url: ${DATABASE_URL}
+    driver-class-name: org.postgresql.Driver
+    username: ${DATABASE_USERNAME}
+    password: ${DATABASE_PASSWORD}
+
+  h2:
+    console:
+      enabled: false
+
+  thymeleaf:
+    cache: true
+
+app:
+  seed-sample-data: false
+
+logging:
+  level:
+    com.dbrlwns.classic: INFO

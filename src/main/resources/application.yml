@@ -1,0 +1,46 @@
+spring:
+  application:
+    name: classic
+
+  # 1단계: 스키마가 계속 흔들리는 동안은 create-drop 으로 깨끗하게 새로 만든다.
+  # update 는 컬럼을 추가만 하고 rename/삭제/타입변경을 반영하지 않아 스키마가 조용히 썩는다.
+  # 진짜 콘텐츠를 넣기 시작하는 날 Flyway 를 도입하고 ddl-auto 를 validate 로 바꾼다.
+  jpa:
+    hibernate:
+      ddl-auto: create-drop
+    open-in-view: false
+    properties:
+      hibernate:
+        format_sql: true
+
+  datasource:
+    url: jdbc:h2:mem:classic;DB_CLOSE_DELAY=-1
+    driver-class-name: org.h2.Driver
+    username: sa
+    password:
+
+  h2:
+    console:
+      enabled: true
+      path: /h2-console
+
+  thymeleaf:
+    cache: false
+
+  sql:
+    init:
+      mode: never
+
+server:
+  port: 8080
+
+app:
+  admin:
+    username: ${ADMIN_USERNAME:admin}
+    password: ${ADMIN_PASSWORD:admin}
+  # 개발 중 샘플 데이터를 넣을지. 운영에서는 false.
+  seed-sample-data: true
+
+logging:
+  level:
+    com.dbrlwns.classic: DEBUG

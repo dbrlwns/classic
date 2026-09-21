@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head th:replace="~{layout :: head('작곡가')}"></head>
+<body>
+<header th:replace="~{layout :: header}"></header>
+
+<main class="container">
+    <h1>작곡가</h1>
+
+    <div th:if="${#lists.isEmpty(composers)}" class="empty">아직 등록된 작곡가가 없습니다.</div>
+
+    <ul class="work-list">
+        <li class="work-card" th:each="composer : ${composers}">
+            <h2><a th:href="@{'/composers/' + ${composer.slug}}" th:text="${composer.name}">이름</a></h2>
+            <p class="meta">
+                <span th:if="${composer.nameEn}" th:text="${composer.nameEn}"></span>
+                <span th:text="' ' + ${composer.lifespan}"></span>
+            </p>
+        </li>
+    </ul>
+</main>
+
+<footer th:replace="~{layout :: footer}"></footer>
+</body>
+</html>

@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{layout :: head('관리')}"></head>
+<body class="admin-body">
+<main class="container" style="padding-top:28px;">
+    <nav th:replace="~{admin/_nav :: nav}"></nav>
+
+    <div class="flash" th:if="${message}" th:text="${message}"></div>
+
+    <h1 style="font-size:24px;">곡</h1>
+    <p style="color:var(--text-muted);font-size:14px;">
+        등록된 작곡가 <span th:text="${composerCount}">0</span>명
+    </p>
+
+    <p th:if="${#lists.isEmpty(works)}" class="empty">
+        아직 곡이 없습니다. <a th:href="@{/admin/composers/new}">작곡가를 먼저 등록</a>한 뒤 곡을 추가하세요.
+    </p>
+
+    <table th:if="${!#lists.isEmpty(works)}">
+        <thead>
+        <tr>
+            <th>제목</th>
+            <th>작곡가</th>
+            <th>상태</th>
+            <th></th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr th:each="work : ${works}">
+            <td>
+                <a th:href="@{'/admin/works/' + ${work.id} + '/edit'}" th:text="${work.title}">제목</a>
+                <div style="color:var(--text-muted);font-size:12px;" th:text="${work.slug}"></div>
+            </td>
+            <td th:text="${work.composer.name}">작곡가</td>
+            <td>
+                <span class="badge on" th:if="${work.published}">공개</span>
+                <span class="badge" th:unless="${work.published}">초안</span>
+            </td>
+            <td>
+                <a class="btn secondary small" th:if="${work.published}"
+                   th:href="@{'/works/' + ${work.slug}}" target="_blank">보기</a>
+            </td>
+        </tr>
+        </tbody>
+    </table>
+</main>
+</body>
+</html>

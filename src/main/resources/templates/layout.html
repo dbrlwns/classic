@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head th:fragment="head(title)">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title th:text="${title} + ' · Cadenza'">Cadenza</title>
+    <link rel="stylesheet" th:href="@{/css/app.css}">
+</head>
+<body>
+
+<header class="site-header" th:fragment="header">
+    <div class="container">
+        <a class="site-title" th:href="@{/}">Cadenza</a>
+        <nav class="site-nav">
+            <a th:href="@{/}">곡</a>
+            <a th:href="@{/composers}">작곡가</a>
+            <a th:href="@{/admin}" sec:authorize="isAuthenticated()">관리</a>
+        </nav>
+    </div>
+</header>
+
+<footer class="site-footer" th:fragment="footer">
+    <div class="container">
+        <p>Cadenza — 클래식 곡에 얽힌 이야기</p>
+        <p>악곡은 퍼블릭 도메인이며, 음원은 각 출처의 라이선스를 따릅니다. 유튜브 음원은 임베드로만 재생됩니다.</p>
+    </div>
+</footer>
+
+</body>
+</html>

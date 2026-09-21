@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head th:replace="~{layout :: head(${work.title})}"></head>
+<body>
+<header th:replace="~{layout :: header}"></header>
+
+<main class="container">
+    <div class="work-header">
+        <h1 th:text="${work.title}">제목</h1>
+        <p class="meta">
+            <a th:href="@{'/composers/' + ${work.composer.slug}}" th:text="${work.composer.name}">작곡가</a>
+            <span th:if="${work.catalog}" th:text="' · ' + ${work.catalog}"></span>
+            <span th:if="${work.yearComposed}" th:text="' · ' + ${work.yearComposed}"></span>
+            <span th:if="${work.titleOriginal}" th:text="' · ' + ${work.titleOriginal}"></span>
+        </p>
+    </div>
+
+    <section class="player-shell"
+             th:if="${recording != null}"
+             th:classappend="${recording.sourceType.name() == 'SELF_HOSTED'} ? 'audio-only' : ''">
+        <div class="player-frame"><div id="player"></div></div>
+
+        <div class="player-meta">
+            <span th:if="${recording.performer}" th:text="${recording.performer}">연주자</span>
+            <span th:if="${recording.license}" th:text="${recording.license}">라이선스</span>
+            <a th:if="${recording.sourceUrl}" th:href="${recording.sourceUrl}" target="_blank" rel="noopener">출처</a>
+            <span th:if="${recording.attribution}" th:text="${recording.attribution}"></span>
+        </div>
+
+        <div class="player-error" id="player-error"></div>
+    </section>
+
+    <section class="player-shell" th:if="${recording == null}">
+        <p style="margin:0;color:var(--text-muted);font-size:14px;">재생 가능한 음원이 아직 없습니다.</p>
+    </section>
+
+    <article class="story" th:utext="${storyHtml}"></article>
+</main>
+
+<footer th:replace="~{layout :: footer}"></footer>
+
+<script th:src="@{/js/player.js}"></script>
+<script th:if="${recording != null}" th:inline="javascript">
+    /*<![CDATA[*/
+    var options = {
+        sourceType: /*[[${recording.sourceType.name()}]]*/ 'YOUTUBE',
+        youtubeId: /*[[${recording.youtubeId}]]*/ '',
+        audioUrl: /*[[${recording.audioUrl}]]*/ '',
+        startOffset: /*[[${recording.startOffset}]]*/ 0,
+        endOffset: /*[[${recording.endOffset}]]*/ 0
+    };
+
+    var player = Classic.createPlayer(document.getElementById('player'), options);
+
+    player.on('error', function (info) {
+        var box = document.getElementById('player-error');
+        box.textContent = info.message;
+        box.style.display = 'block';
+    });
+
+    // 여기에 주석(Annotation) 하이라이트가 붙는다. 1단계에서는 비워둔다.
+    // player.on('tick', function (seconds) { ... });
+    /*]]>*/
+</script>
+</body>
+</html>

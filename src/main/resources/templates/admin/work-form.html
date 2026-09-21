@@ -1,0 +1,298 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{layout :: head('곡 편집')}"></head>
+<body class="admin-body">
+<main class="container" style="padding-top:28px;">
+    <nav th:replace="~{admin/_nav :: nav}"></nav>
+
+    <div class="flash" th:if="${message}" th:text="${message}"></div>
+
+    <h1 style="font-size:24px;" th:text="${form.id == null} ? '곡 추가' : '곡 수정'">곡</h1>
+
+    <form method="post" th:action="@{/admin/works/save}" th:object="${form}">
+        <input type="hidden" th:field="*{id}">
+
+        <div class="field">
+            <label for="composerId">작곡가</label>
+            <select id="composerId" th:field="*{composerId}">
+                <option value="">— 선택 —</option>
+                <option th:each="c : ${composers}" th:value="${c.id}" th:text="${c.name}"></option>
+            </select>
+            <div class="error" th:if="${#fields.hasErrors('composerId')}" th:errors="*{composerId}"></div>
+        </div>
+
+        <div class="row">
+            <div class="field">
+                <label for="title">제목</label>
+                <input type="text" id="title" th:field="*{title}" placeholder="달빛">
+                <div class="error" th:if="${#fields.hasErrors('title')}" th:errors="*{title}"></div>
+            </div>
+            <div class="field">
+                <label for="titleOriginal">원어 제목</label>
+                <input type="text" id="titleOriginal" th:field="*{titleOriginal}" placeholder="Clair de lune">
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="field">
+                <label for="catalog">작품 번호</label>
+                <input type="text" id="catalog" th:field="*{catalog}" placeholder="L. 75 No. 3">
+            </div>
+            <div class="field">
+                <label for="yearComposed">작곡 연도</label>
+                <input type="number" id="yearComposed" th:field="*{yearComposed}" placeholder="1890">
+            </div>
+            <div class="field">
+                <label for="slug">슬러그</label>
+                <input type="text" id="slug" th:field="*{slug}" placeholder="clair-de-lune">
+                <div class="error" th:if="${#fields.hasErrors('slug')}" th:errors="*{slug}"></div>
+            </div>
+        </div>
+
+        <div class="field">
+            <label for="summary">한 줄 소개</label>
+            <input type="text" id="summary" th:field="*{summary}">
+            <div class="hint">목록 카드에 표시됩니다.</div>
+        </div>
+
+        <div class="field">
+            <label for="story">스토리 (Markdown)</label>
+            <textarea id="story" th:field="*{story}"></textarea>
+            <div class="hint">
+                사실(작곡 연도, 초연 등)은 저작권이 없지만 남이 쓴 문장은 보호됩니다. 직접 쓰세요.
+            </div>
+        </div>
+
+        <div class="field">
+            <label>
+                <input type="checkbox" th:field="*{published}" style="width:auto;margin-right:6px;">
+                공개
+            </label>
+        </div>
+
+        <button class="btn" type="submit">저장</button>
+        <a class="btn secondary" th:href="@{/admin}">목록</a>
+    </form>
+
+    <!-- 음원은 곡이 저장된 뒤에만 붙일 수 있다 -->
+    <div class="section" th:if="${form.id != null}">
+        <h2 style="font-size:20px;">음원</h2>
+
+        <table th:if="${recordings != null and !#lists.isEmpty(recordings)}">
+            <thead>
+            <tr><th>연주</th><th>소스</th><th>상태</th><th></th></tr>
+            </thead>
+            <tbody>
+            <tr th:each="r : ${recordings}">
+                <td>
+                    <span th:text="${r.performer} ?: '(연주자 미입력)'"></span>
+                    <div style="color:var(--text-muted);font-size:12px;" th:text="${r.license}"></div>
+                </td>
+                <td>
+                    <span th:text="${r.sourceType}"></span>
+                    <div style="font-size:12px;">
+                        <a th:if="${r.sourceUrl}" th:href="${r.sourceUrl}" target="_blank" rel="noopener">열기</a>
+                    </div>
+                </td>
+                <td>
+                    <span class="badge on" th:if="${r.default}">대표</span>
+                    <span class="badge off" th:unless="${r.available}">재생 불가</span>
+                </td>
+                <td style="white-space:nowrap;">
+                    <form method="post" th:action="@{'/admin/recordings/' + ${r.id} + '/default'}"
+                          style="display:inline;" th:unless="${r.default}">
+                        <button class="btn secondary small" type="submit">대표로</button>
+                    </form>
+                    <form method="post" th:action="@{'/admin/recordings/' + ${r.id} + '/toggle-available'}"
+                          style="display:inline;">
+                        <button class="btn secondary small" type="submit"
+                                th:text="${r.available} ? '내리기' : '올리기'">내리기</button>
+                    </form>
+                    <form method="post" th:action="@{'/admin/recordings/' + ${r.id} + '/delete'}"
+                          style="display:inline;" onsubmit="return confirm('이 음원을 삭제할까요?');">
+                        <button class="btn danger small" type="submit">삭제</button>
+                    </form>
+                </td>
+            </tr>
+            </tbody>
+        </table>
+
+        <h3 style="font-size:16px;margin-top:28px;">음원 추가</h3>
+
+        <form method="post" th:action="@{'/admin/works/' + ${form.id} + '/recordings'}">
+            <div class="field">
+                <label for="sourceType">소스 종류</label>
+                <select id="sourceType" name="sourceType">
+                    <option value="YOUTUBE">YouTube (임베드)</option>
+                    <option value="SELF_HOSTED">직접 호스팅 (퍼블릭 도메인/CC 음원만)</option>
+                </select>
+            </div>
+
+            <div id="youtube-fields">
+                <div class="field">
+                    <label for="youtubeUrl">유튜브 URL</label>
+                    <input type="text" id="youtubeUrl" name="youtubeUrl"
+                           placeholder="https://www.youtube.com/watch?v=...">
+                    <div class="hint">
+                        공식 채널(오케스트라·레이블) 영상을 쓰세요. 팬 재업로드는 피합니다.
+                    </div>
+                </div>
+
+                <button class="btn secondary small" type="button" id="lookup-btn">정보 불러오기 · 미리보기</button>
+
+                <div class="preview-box" id="preview-box" style="display:none;">
+                    <div id="preview-info" style="font-size:14px;margin-bottom:10px;"></div>
+                    <div class="player-frame" style="max-width:420px;"><div id="preview-player"></div></div>
+                    <p class="warn" id="preview-warn" style="display:none;"></p>
+                    <p class="hint" style="margin-top:10px;">
+                        oEmbed 가 응답해도 퍼가기 금지 영상일 수 있습니다. 반드시 위에서 직접 재생해 보세요.
+                    </p>
+                </div>
+            </div>
+
+            <div id="self-hosted-fields" style="display:none;">
+                <div class="field">
+                    <label for="audioUrl">오디오 URL</label>
+                    <input type="text" id="audioUrl" name="audioUrl" placeholder="https://.../gymnopedie.mp3">
+                </div>
+            </div>
+
+            <div class="row" style="margin-top:16px;">
+                <div class="field">
+                    <label for="performer">연주자</label>
+                    <input type="text" id="performer" name="performer" placeholder="Glenn Gould (1981)">
+                </div>
+                <div class="field">
+                    <label for="durationSeconds">재생 길이 (초)</label>
+                    <input type="number" id="durationSeconds" name="durationSeconds">
+                    <div class="hint">지금 안 써도 채워두세요. 나중에 소급 입력이 고통스럽습니다.</div>
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="field">
+                    <label for="startOffset">시작 지점 (초)</label>
+                    <input type="number" id="startOffset" name="startOffset">
+                </div>
+                <div class="field">
+                    <label for="endOffset">종료 지점 (초)</label>
+                    <input type="number" id="endOffset" name="endOffset">
+                    <div class="hint">긴 영상에서 한 곡만 재생할 때 씁니다.</div>
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="field">
+                    <label for="license">라이선스</label>
+                    <input type="text" id="license" name="license" placeholder="YouTube 임베드 / Public Domain / CC BY 4.0">
+                </div>
+                <div class="field">
+                    <label for="sourceUrl">출처 URL</label>
+                    <input type="text" id="sourceUrl" name="sourceUrl">
+                </div>
+            </div>
+
+            <div class="field">
+                <label for="attribution">표기 문구</label>
+                <input type="text" id="attribution" name="attribution"
+                       placeholder="Musopen / 연주자 이름 등 표기해야 할 문구">
+            </div>
+
+            <div class="field">
+                <label>
+                    <input type="checkbox" name="default" value="true" style="width:auto;margin-right:6px;">
+                    대표 음원으로 지정
+                </label>
+            </div>
+
+            <button class="btn" type="submit">음원 추가</button>
+        </form>
+    </div>
+</main>
+
+<script th:src="@{/js/player.js}"></script>
+<script th:inline="javascript">
+    /*<![CDATA[*/
+    (function () {
+        var sourceType = document.getElementById('sourceType');
+        if (!sourceType) { return; }
+
+        var ytFields = document.getElementById('youtube-fields');
+        var selfFields = document.getElementById('self-hosted-fields');
+
+        sourceType.addEventListener('change', function () {
+            var isYoutube = sourceType.value === 'YOUTUBE';
+            ytFields.style.display = isYoutube ? '' : 'none';
+            selfFields.style.display = isYoutube ? 'none' : '';
+        });
+
+        var lookupBtn = document.getElementById('lookup-btn');
+        var previewBox = document.getElementById('preview-box');
+        var previewInfo = document.getElementById('preview-info');
+        var previewWarn = document.getElementById('preview-warn');
+
+        lookupBtn.addEventListener('click', function () {
+            var url = document.getElementById('youtubeUrl').value.trim();
+            if (!url) { return; }
+
+            lookupBtn.disabled = true;
+            lookupBtn.textContent = '불러오는 중...';
+
+            fetch('/admin/youtube/lookup?url=' + encodeURIComponent(url))
+                .then(function (res) { return res.json().then(function (b) { return { ok: res.ok, body: b }; }); })
+                .then(function (result) {
+                    lookupBtn.disabled = false;
+                    lookupBtn.textContent = '정보 불러오기 · 미리보기';
+
+                    if (!result.ok) {
+                        previewBox.style.display = 'block';
+                        previewInfo.textContent = result.body.error || '불러오지 못했습니다';
+                        return;
+                    }
+
+                    var data = result.body;
+                    previewBox.style.display = 'block';
+                    previewWarn.style.display = 'none';
+
+                    previewInfo.innerHTML = data.found
+                        ? '<strong>' + data.title + '</strong><br><span style="color:var(--text-muted)">'
+                          + data.authorName + '</span>'
+                        : '<span style="color:var(--danger)">oEmbed 응답이 없습니다. 영상이 삭제되었거나 비공개일 수 있습니다.</span>';
+
+                    if (data.startOffset !== '' && !document.getElementById('startOffset').value) {
+                        document.getElementById('startOffset').value = data.startOffset;
+                    }
+                    if (!document.getElementById('sourceUrl').value) {
+                        document.getElementById('sourceUrl').value = 'https://www.youtube.com/watch?v=' + data.videoId;
+                    }
+                    if (!document.getElementById('license').value) {
+                        document.getElementById('license').value = 'YouTube 임베드';
+                    }
+
+                    var holder = document.getElementById('preview-player');
+                    holder.innerHTML = '<div id="preview-player-inner"></div>';
+
+                    var preview = Classic.createPlayer(document.getElementById('preview-player-inner'), {
+                        sourceType: 'YOUTUBE',
+                        youtubeId: data.videoId,
+                        startOffset: parseInt(document.getElementById('startOffset').value || '0', 10)
+                    });
+
+                    preview.on('error', function (info) {
+                        previewWarn.style.display = 'block';
+                        previewWarn.textContent = '재생 불가 (' + info.code + '): ' + info.message
+                            + ' — 다른 영상을 찾으세요.';
+                    });
+                })
+                .catch(function () {
+                    lookupBtn.disabled = false;
+                    lookupBtn.textContent = '정보 불러오기 · 미리보기';
+                    previewBox.style.display = 'block';
+                    previewInfo.textContent = '요청에 실패했습니다.';
+                });
+        });
+    })();
+    /*]]>*/
+</script>
+</body>
+</html>
