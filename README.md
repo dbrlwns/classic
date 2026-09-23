@@ -61,7 +61,29 @@ PowerShell 에서는 `.\` 를 빼면 실행되지 않습니다.
 - 관리: http://localhost:8080/admin (기본 `admin` / `admin`)
 - H2 콘솔: http://localhost:8080/h2-console (JDBC URL `jdbc:h2:mem:classic`)
 
-관리자 계정은 환경변수로 바꿉니다.
+## 관리자 계정 바꾸기
+
+기본값 `admin` / `admin` 은 **배포 전에 반드시 바꿔야 합니다.**
+
+### 권장: application-local.yml
+
+`bootRun` 은 항상 `local` 프로파일로 뜨게 해뒀습니다. 아래 파일만 만들면
+추가 옵션 없이 `./gradlew bootRun` 으로 내 계정이 적용됩니다.
+
+```yaml
+# src/main/resources/application-local.yml   ← .gitignore 에 있어 커밋되지 않음
+app:
+  admin:
+    username: 내아이디
+    password: 내비밀번호
+```
+
+이 파일이 없어도 에러가 아니라 `application.yml` 의 기본값을 씁니다.
+그래서 다른 기기에서 클론해도 그냥 돌아갑니다.
+
+**`application.yml` 에 직접 적지 마세요. 그 파일은 커밋됩니다.**
+
+### 한 번만 쓸 때: 환경변수
 
 ```bash
 ADMIN_USERNAME=... ADMIN_PASSWORD=... ./gradlew bootRun
@@ -70,6 +92,12 @@ ADMIN_USERNAME=... ADMIN_PASSWORD=... ./gradlew bootRun
 ```powershell
 $env:ADMIN_USERNAME="..."; $env:ADMIN_PASSWORD="..."; .\gradlew.bat bootRun
 ```
+
+### IntelliJ
+
+Run → Edit Configurations → Active profiles 에 `local` 을 적거나,
+Environment variables 에 `SPRING_PROFILES_ACTIVE=local` 을 넣습니다.
+(`build.gradle` 의 bootRun 설정은 Gradle 로 실행할 때만 적용됩니다.)
 
 ## 인코딩과 줄바꿈
 

@@ -55,3 +55,11 @@ tasks.withType(Javadoc).configureEach {
 tasks.withType(Test).configureEach {
     systemProperty 'file.encoding', 'UTF-8'
 }
+
+// 개발 실행은 항상 local 프로파일로 띄운다.
+// application-local.yml 은 .gitignore 에 있어서 관리자 계정 같은 개인 설정을
+// 커밋하지 않고 둘 수 있다. 그 파일이 없어도 에러가 아니라 application.yml 만 쓴다.
+// 배포는 bootRun 이 아니라 jar 로 하므로 운영에는 영향이 없다.
+tasks.named('bootRun') {
+    args '--spring.profiles.active=local'
+}
