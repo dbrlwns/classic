@@ -13,12 +13,33 @@
 Cannot find a Java installation on your machine ... matching: {languageVersion=21, ...}
 ```
 
-macOS 기준 설치:
+**macOS**
 
 ```bash
 brew install --cask temurin@21
 /usr/libexec/java_home -V          # 설치 확인
 ```
+
+**Windows**
+
+```powershell
+winget install EclipseAdoptium.Temurin.21.JDK
+```
+
+새 터미널을 열고 확인합니다.
+
+```powershell
+java -version
+echo $env:JAVA_HOME
+```
+
+`JAVA_HOME` 이 비어 있으면 (winget 설치 시 자주 그렇습니다) 직접 설정합니다.
+
+```powershell
+setx JAVA_HOME "C:\Program Files\Eclipse Adoptium\jdk-21.0.x-hotspot"
+```
+
+설정 후 터미널을 다시 열어야 반영됩니다.
 
 `settings.gradle` 에 foojay toolchain resolver 를 넣어둬서 JDK 21 이 없으면
 Gradle 이 직접 받아오기는 합니다. 다만 그건 Gradle 전용이라 IDE 는 따로
@@ -27,8 +48,14 @@ JDK 를 찾으므로, IntelliJ 등에서 열 거면 위처럼 설치해 두는 �
 ## 실행
 
 ```bash
-./gradlew bootRun
+./gradlew bootRun              # macOS / Linux
 ```
+
+```powershell
+.\gradlew.bat bootRun          # Windows PowerShell
+```
+
+PowerShell 에서는 `.\` 를 빼면 실행되지 않습니다.
 
 - 사이트: http://localhost:8080
 - 관리: http://localhost:8080/admin (기본 `admin` / `admin`)
@@ -39,6 +66,24 @@ JDK 를 찾으므로, IntelliJ 등에서 열 거면 위처럼 설치해 두는 �
 ```bash
 ADMIN_USERNAME=... ADMIN_PASSWORD=... ./gradlew bootRun
 ```
+
+```powershell
+$env:ADMIN_USERNAME="..."; $env:ADMIN_PASSWORD="..."; .\gradlew.bat bootRun
+```
+
+## 인코딩과 줄바꿈
+
+소스에 한글 주석이 많습니다. `build.gradle` 에서 컴파일 인코딩을 UTF-8 로 고정하고
+`gradle.properties` 에서 Gradle 데몬도 UTF-8 로 띄웁니다. 윈도우에서도 그대로 빌드됩니다.
+
+윈도우 콘솔에 한글 로그가 깨져 보이면 콘솔 쪽 문제입니다.
+
+```powershell
+chcp 65001
+```
+
+줄바꿈은 `.gitattributes` 로 저장소에서 LF 로 통일합니다.
+`core.autocrlf=true` 가 `gradlew` 를 CRLF 로 바꾸면 Git Bash/WSL 에서 실행되지 않습니다.
 
 ## 첫 실행 후 해볼 것
 

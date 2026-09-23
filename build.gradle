@@ -40,3 +40,18 @@ dependencies {
 tasks.named('test') {
     useJUnitPlatform()
 }
+
+// 소스에 한글 주석이 많다. 인코딩을 명시하지 않으면 플랫폼 기본값을 따르는데,
+// 윈도우에서 구형 JDK 나 일부 도구 조합이면 MS949 로 읽혀 주석이 깨지고
+// 컴파일 에러까지 난다. 어느 OS 에서 빌드하든 UTF-8 로 고정한다.
+tasks.withType(JavaCompile).configureEach {
+    options.encoding = 'UTF-8'
+}
+
+tasks.withType(Javadoc).configureEach {
+    options.encoding = 'UTF-8'
+}
+
+tasks.withType(Test).configureEach {
+    systemProperty 'file.encoding', 'UTF-8'
+}
