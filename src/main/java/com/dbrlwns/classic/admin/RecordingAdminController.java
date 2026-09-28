@@ -1,8 +1,8 @@
 package com.dbrlwns.classic.admin;
 
+import com.dbrlwns.classic.external.youtube.OEmbedLookup;
 import com.dbrlwns.classic.external.youtube.YouTubeOEmbedClient;
 import com.dbrlwns.classic.external.youtube.YouTubeUrlParser;
-import com.dbrlwns.classic.external.youtube.YouTubeVideoInfo;
 import com.dbrlwns.classic.recording.Recording;
 import com.dbrlwns.classic.recording.RecordingRepository;
 import com.dbrlwns.classic.recording.SourceType;
@@ -16,6 +16,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
+import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Optional;
 
@@ -47,17 +48,23 @@ public class RecordingAdminController {
             return ResponseEntity.badRequest().body(Map.of("error", "유튜브 URL 에서 영상 ID를 찾지 못했습니다"));
         }
 
-        Optional<YouTubeVideoInfo> info = oEmbedClient.fetch(videoId.get());
+        OEmbedLookup lookup = oEmbedClient.fetch(videoId.get());
         Integer start = YouTubeUrlParser.extractStartSeconds(url).orElse(null);
 
-        return ResponseEntity.ok(Map.of(
-                "videoId", videoId.get(),
-                "title", info.map(YouTubeVideoInfo::title).orElse(""),
-                "authorName", info.map(YouTubeVideoInfo::authorName).orElse(""),
-                "thumbnailUrl", info.map(YouTubeVideoInfo::thumbnailUrl).orElse(""),
-                "startOffset", start == null ? "" : start,
-                "found", info.isPresent()
-        ));
+        Map<String, Object> body = new LinkedHashMap<>();
+        body.put("videoId", videoId.get());
+        body.put("found", lookup.isFound());
+        body.put("title", lookup.isFound() ? nullToEmpty(lookup.info().title()) : "");
+        body.put("authorName", lookup.isFound() ? nullToEmpty(lookup.info().authorName()) : "");
+        body.put("thumbnailUrl", lookup.isFound() ? nullToEmpty(lookup.info().thumbnailUrl()) : "");
+        body.put("startOffset", start == null ? "" : start);
+        body.put("failureReason", lookup.isFound() ? "" : lookup.failureReason());
+
+        return ResponseEntity.ok(body);
+    }
+
+    private static String nullToEmpty(String value) {
+        return value == null ? "" : value;
     }
 
     @PostMapping("/works/{workId}/recordings")

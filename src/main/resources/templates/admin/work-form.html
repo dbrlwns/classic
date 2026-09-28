@@ -254,10 +254,18 @@
                     previewBox.style.display = 'block';
                     previewWarn.style.display = 'none';
 
-                    previewInfo.innerHTML = data.found
-                        ? '<strong>' + data.title + '</strong><br><span style="color:var(--text-muted)">'
-                          + data.authorName + '</span>'
-                        : '<span style="color:var(--danger)">oEmbed 응답이 없습니다. 영상이 삭제되었거나 비공개일 수 있습니다.</span>';
+                    if (data.found) {
+                        previewInfo.innerHTML = '<strong>' + data.title + '</strong>'
+                            + '<br><span style="color:var(--text-muted)">' + data.authorName + '</span>';
+                    } else {
+                        // 정보 조회 실패는 재생 가능 여부와 무관하다.
+                        // 아래 미리보기가 재생되면 그 영상은 그대로 써도 된다.
+                        previewInfo.innerHTML =
+                            '<span style="color:var(--text-muted)">제목 자동 채우기 실패: '
+                            + data.failureReason + '</span>'
+                            + '<br><span style="color:var(--text-muted)">아래에서 재생되면 그대로 쓰셔도 됩니다. '
+                            + '연주자만 직접 입력하세요.</span>';
+                    }
 
                     if (data.startOffset !== '' && !document.getElementById('startOffset').value) {
                         document.getElementById('startOffset').value = data.startOffset;
