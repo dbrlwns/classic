@@ -1,6 +1,12 @@
 /*
  * 재생기 어댑터.
  *
+ * !! 플레이어를 숨기거나 오디오만 분리해 재생하지 말 것 !!
+ * IFrame Player API 를 쓰는 순간 YouTube API Services Terms 의 적용을 받는다.
+ * 약관은 플레이어를 가리는 것과 오디오를 분리하는 것을 금지한다.
+ * "스토리를 읽으며 듣는" UX 를 다듬다 보면 영상을 숨기고 얇은 재생 바만
+ * 남기고 싶어지는데, 그건 할 수 없다. 영상 영역은 그대로 노출한다.
+ *
  * 유튜브 iframe 과 <audio> 는 API 가 전혀 다르다. 화면 코드가 그 차이를 알게 두면
  * 나중에 타임스탬프 주석을 붙일 때 플레이어 코드를 처음부터 다시 쓰게 된다.
  * 지금은 재생 버튼밖에 안 쓰더라도 인터페이스는 처음부터 갖춰둔다.
@@ -16,6 +22,12 @@
     'use strict';
 
     var TICK_INTERVAL_MS = 250;
+
+    // 임베드를 youtube-nocookie.com 으로 띄운다. 방문자가 재생을 누르지 않아도
+    // 심어지던 추적 쿠키가 크게 줄어든다. 기능은 www.youtube.com 과 동일하다.
+    // 쿠키가 완전히 사라지는 것은 아니므로(재생하면 일부 저장된다) 배포 시
+    // 쿠키 고지는 별도로 판단해야 한다.
+    var YOUTUBE_EMBED_HOST = 'https://www.youtube-nocookie.com';
 
     // 유튜브 IFrame API 는 재생 시간 이벤트를 주지 않는다. 폴링해야 한다.
     var YOUTUBE_ERRORS = {
@@ -95,13 +107,15 @@
         var self = this;
         loadYouTubeApi().then(function (YT) {
             self.player = new YT.Player(self.element, {
+                host: YOUTUBE_EMBED_HOST,
                 videoId: self.options.youtubeId,
                 playerVars: {
                     start: self.options.startOffset || 0,
                     end: self.options.endOffset || undefined,
                     rel: 0,
-                    modestbranding: 1,
                     playsinline: 1
+                    // modestbranding 은 2023-08 부터 효과가 없어 제거했다.
+                    // 로고를 가리는 방향 자체가 YouTube 약관과 충돌한다.
                 },
                 events: {
                     onReady: function () {
