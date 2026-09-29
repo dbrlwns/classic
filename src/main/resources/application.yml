@@ -9,6 +9,10 @@ spring:
     hibernate:
       ddl-auto: create-drop
     open-in-view: false
+    # data.sql 을 Hibernate 의 스키마 생성 "뒤에" 실행한다.
+    # 이 값이 false(기본값)면 테이블이 만들어지기 전에 data.sql 이 돌아
+    # "Table not found" 로 부팅이 실패한다.
+    defer-datasource-initialization: true
     properties:
       hibernate:
         format_sql: true
@@ -27,9 +31,11 @@ spring:
   thymeleaf:
     cache: false
 
+  # 시드 데이터는 data.sql 한 곳에서 관리한다.
+  # 매 기동마다 실행되지만 ddl-auto 가 create-drop 이라 중복이 쌓이지 않는다.
   sql:
     init:
-      mode: never
+      mode: always
 
 server:
   port: 8080
@@ -38,8 +44,6 @@ app:
   admin:
     username: ${ADMIN_USERNAME:admin}
     password: ${ADMIN_PASSWORD:admin}
-  # 개발 중 샘플 데이터를 넣을지. 운영에서는 false.
-  seed-sample-data: true
 
 logging:
   level:

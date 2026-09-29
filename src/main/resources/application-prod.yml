@@ -10,15 +10,18 @@ spring:
     username: ${DATABASE_USERNAME}
     password: ${DATABASE_PASSWORD}
 
+  # 운영에서는 시드를 넣지 않는다. data.sql 은 매 기동마다 실행되므로
+  # 켜 두면 재배포할 때마다 같은 행이 다시 들어간다.
+  sql:
+    init:
+      mode: never
+
   h2:
     console:
       enabled: false
 
   thymeleaf:
     cache: true
-
-app:
-  seed-sample-data: false
 
 logging:
   level:
