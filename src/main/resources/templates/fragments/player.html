@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<body>
+
+<!--
+  목록 카드의 "들어보기" 영역.
+
+  클릭하면 이 자리에 실제 유튜브 플레이어가 들어온다.
+  목록에 iframe 을 미리 다 띄우면 곡마다 1MB 가 넘는 스크립트를 끌어와
+  페이지가 못 쓰게 된다. 그래서 썸네일을 먼저 보여주고 클릭할 때 붙인다.
+
+  플레이어를 숨기는 것이 아니다. 클릭하면 유튜브 플레이어가 그대로 나타난다.
+  (약관 제약은 docs/concept.md 의 "YouTube 약관" 절 참조)
+-->
+<div class="work-card-player" th:fragment="facade(work, rec)" th:if="${rec != null}">
+    <button type="button" class="yt-facade"
+            th:attr="data-video-id=${rec.youtubeId},
+                     data-audio-url=${rec.audioUrl},
+                     data-source-type=${rec.sourceType.name()},
+                     data-start=${rec.startOffset},
+                     data-end=${rec.endOffset},
+                     aria-label=|${work.title} 들어보기|">
+        <img th:if="${work.thumbnailUrl != null}"
+             th:src="${work.thumbnailUrl}" alt="" loading="lazy" decoding="async">
+        <span class="yt-facade-play" aria-hidden="true"></span>
+    </button>
+    <p class="yt-facade-error"></p>
+</div>
+
+
+<!-- 목록에 facade 가 하나라도 있는 페이지는 이 스크립트를 넣는다. -->
+<th:block th:fragment="script">
+    <script th:src="@{/js/player.js}"></script>
+    <script>
+        (function () {
+            'use strict';
+
+            // 이미 붙은 플레이어들. 새로 하나를 켜면 나머지를 멈춘다.
+            var mounted = [];
+
+            function mount(facade) {
+                var wrapper = facade.parentNode;
+                var errorBox = wrapper.querySelector('.yt-facade-error');
+                var data = facade.dataset;
+
+                var frame = document.createElement('div');
+                frame.className = 'player-frame';
+                var inner = document.createElement('div');
+                frame.appendChild(inner);
+                wrapper.replaceChild(frame, facade);
+
+                // 새로 켜기 전에 기존 플레이어를 멈춘다. 여러 곡이 겹쳐 나오지 않게.
+                mounted.forEach(function (other) {
+                    other.pause();
+                });
+
+                var player = Classic.createPlayer(inner, {
+                    sourceType: data.sourceType,
+                    youtubeId: data.videoId,
+                    audioUrl: data.audioUrl,
+                    startOffset: data.start ? parseInt(data.start, 10) : 0,
+                    endOffset: data.end ? parseInt(data.end, 10) : 0
+                });
+
+                // 사용자가 버튼을 눌러 들어온 흐름이라 자동재생 제한에 걸리지 않는다.
+                player.on('ready', function () {
+                    player.play();
+                });
+
+                player.on('error', function (info) {
+                    if (errorBox) {
+                        errorBox.textContent = info.message;
+                        errorBox.style.display = 'block';
+                    }
+                });
+
+                mounted.push(player);
+            }
+
+            document.querySelectorAll('.yt-facade').forEach(function (facade) {
+                facade.addEventListener('click', function () {
+                    mount(facade);
+                });
+            });
+        })();
+    </script>
+</th:block>
+
+</body>
+</html>

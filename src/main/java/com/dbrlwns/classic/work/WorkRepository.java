@@ -22,12 +22,18 @@ public interface WorkRepository extends JpaRepository<Work, Long> {
 
     boolean existsBySlug(String slug);
 
-    @Query("select w from Work w join fetch w.composer where w.published = true order by w.createdAt desc")
+    /**
+     * 목록 화면은 카드마다 대표 음원의 썸네일을 띄우므로 recordings 까지 끌어온다.
+     * 여기서 빠뜨리면 뷰를 그릴 때 LazyInitializationException 이다.
+     */
+    @Query("select distinct w from Work w join fetch w.composer left join fetch w.recordings "
+            + "where w.published = true order by w.createdAt desc")
     List<Work> findPublishedWithComposer();
 
     @Query("select w from Work w join fetch w.composer order by w.createdAt desc")
     List<Work> findAllWithComposer();
 
-    @Query("select w from Work w join fetch w.composer where w.composer.slug = :slug and w.published = true order by w.title asc")
+    @Query("select distinct w from Work w join fetch w.composer left join fetch w.recordings "
+            + "where w.composer.slug = :slug and w.published = true order by w.title asc")
     List<Work> findPublishedByComposerSlug(String slug);
 }

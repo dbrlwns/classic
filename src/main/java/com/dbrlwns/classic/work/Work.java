@@ -86,6 +86,34 @@ public class Work {
                 .or(() -> recordings.stream().filter(Recording::isAvailable).findFirst());
     }
 
+    /**
+     * 템플릿에서 Optional 을 풀지 않고 바로 쓰기 위한 접근자. 음원이 없으면 null 이다.
+     *
+     * 필드 접근 방식이라 Hibernate 는 게터를 보지 않지만, 파생 값임을 분명히 하려고
+     * @Transient 를 붙였다.
+     */
+    @Transient
+    public Recording getPlayableRecording() {
+        return pickPlayableRecording().orElse(null);
+    }
+
+    /**
+     * 유튜브 썸네일 주소. 영상 ID 로 그릴 때마다 조립한다.
+     *
+     * 주소를 DB 에 저장하지 않는 이유가 있다. YouTube API 약관은 API 로 받은 데이터를
+     * 30일 넘게 저장하지 못하게 하면서 영상 ID 는 예외로 둔다. 그래서 ID 만 남긴다.
+     *
+     * mqdefault 는 320x180 으로 정확히 16:9 다. hqdefault 는 4:3 이라 위아래가 남는다.
+     */
+    @Transient
+    public String getThumbnailUrl() {
+        Recording recording = getPlayableRecording();
+        if (recording == null || !recording.isYoutube() || recording.getYoutubeId() == null) {
+            return null;
+        }
+        return "https://i.ytimg.com/vi/" + recording.getYoutubeId() + "/mqdefault.jpg";
+    }
+
     public void addRecording(Recording recording) {
         recordings.add(recording);
         recording.setWork(this);

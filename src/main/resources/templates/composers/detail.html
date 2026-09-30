@@ -20,9 +20,20 @@
     <div class="section">
         <h2>곡</h2>
         <ul class="work-list">
-            <li class="work-card" th:each="work : ${works}">
-                <h2><a th:href="@{'/works/' + ${work.slug}}" th:text="${work.title}">제목</a></h2>
-                <p class="summary" th:if="${work.summary}" th:text="${work.summary}"></p>
+            <li class="work-card" th:each="work : ${works}" th:with="rec=${work.playableRecording}">
+                <div class="work-card-body">
+                    <h2><a th:href="@{'/works/' + ${work.slug}}" th:text="${work.title}">제목</a></h2>
+                    <p class="meta">
+                        <span th:if="${work.catalog}" th:text="${work.catalog}"></span>
+                        <span th:if="${work.yearComposed}" th:text="' · ' + ${work.yearComposed}"></span>
+                    </p>
+                    <p class="summary" th:if="${work.summary}" th:text="${work.summary}"></p>
+                    <p class="card-performer"
+                       th:if="${rec != null and rec.performer != null}"
+                       th:text="${rec.performer}"></p>
+                </div>
+
+                <div th:replace="~{fragments/player :: facade(${work}, ${rec})}"></div>
             </li>
         </ul>
         <p th:if="${#lists.isEmpty(works)}" class="empty">아직 공개된 곡이 없습니다.</p>
@@ -30,5 +41,7 @@
 </main>
 
 <footer th:replace="~{layout :: footer}"></footer>
+
+<th:block th:replace="~{fragments/player :: script}"></th:block>
 </body>
 </html>

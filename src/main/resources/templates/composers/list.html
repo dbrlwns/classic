@@ -12,11 +12,14 @@
 
     <ul class="work-list">
         <li class="work-card" th:each="composer : ${composers}">
-            <h2><a th:href="@{'/composers/' + ${composer.slug}}" th:text="${composer.name}">이름</a></h2>
-            <p class="meta">
-                <span th:if="${composer.nameEn}" th:text="${composer.nameEn}"></span>
-                <span th:text="' ' + ${composer.lifespan}"></span>
-            </p>
+            <!-- .work-card 가 flex 라 직접 자식은 가로로 늘어선다. body 로 감싸 한 칸을 쓴다. -->
+            <div class="work-card-body">
+                <h2><a th:href="@{'/composers/' + ${composer.slug}}" th:text="${composer.name}">이름</a></h2>
+                <p class="meta">
+                    <span th:if="${composer.nameEn}" th:text="${composer.nameEn}"></span>
+                    <span th:text="' ' + ${composer.lifespan}"></span>
+                </p>
+            </div>
         </li>
     </ul>
 </main>
