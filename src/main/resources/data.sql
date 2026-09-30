@@ -92,3 +92,170 @@ SELECT id, '짐노페디 1번', 'Gymnopedie No. 1', NULL, 1888, 'gymnopedie-no-1
 훗날 드뷔시가 이 곡을 관현악으로 편곡하면서 더 널리 알려졌다.',
        TRUE, CURRENT_TIMESTAMP
 FROM composer WHERE slug = 'satie';
+
+
+-- ---------------------------------------------------------------------------
+-- 곡 초안 (published = FALSE)
+--
+-- 스토리는 비워 두었다. summary 와 story 는 편집자가 쓸 자리다.
+-- 여기 들어있는 것은 찾아보기 귀찮은 메타데이터뿐이다 - 원어 제목,
+-- 작품 번호, 작곡 연도. 스토리를 쓰고 published 를 켜면 사이트에 올라간다.
+--
+-- published = FALSE 이므로 목록(/)에는 보이지 않는다. /admin 에서만 보인다.
+-- 이게 정상이다. 초안 상태다.
+--
+-- 다악장 작품은 악장 자체를 하나의 Work 로 등록한다(concept.md 참조).
+-- "월광 소나타 1악장"이 하나의 Work 다.
+--
+-- 작품 번호와 연도는 출발점으로 넣은 것이다. 스토리를 쓰면서 한 번 확인할 것.
+-- 판본에 따라 다르게 표기되는 것들이 있다(예: 차이콥스키 사계 Op.37a / Op.37b).
+-- ---------------------------------------------------------------------------
+
+INSERT INTO work (composer_id, title, title_original, catalog, year_composed, slug, published, created_at)
+SELECT c.id, d.title, d.title_original, d.catalog, d.year_composed, d.slug, FALSE, CURRENT_TIMESTAMP
+FROM composer c
+JOIN (
+    -- 바흐
+    SELECT 'bach' AS composer_slug, '골드베르크 변주곡 아리아' AS title, 'Goldberg Variations: Aria' AS title_original, 'BWV 988' AS catalog, 1741 AS year_composed, 'goldberg-aria' AS slug UNION ALL
+    SELECT 'bach', '무반주 첼로 조곡 1번 프렐류드', 'Cello Suite No. 1: Prelude', 'BWV 1007', 1720, 'cello-suite-1-prelude' UNION ALL
+    SELECT 'bach', 'G선상의 아리아', 'Air on the G String', 'BWV 1068', 1730, 'air-on-the-g-string' UNION ALL
+
+    -- 모차르트
+    SELECT 'mozart', '터키 행진곡', 'Rondo alla Turca', 'K. 331', 1783, 'rondo-alla-turca' UNION ALL
+    SELECT 'mozart', '레퀴엠 라크리모사', 'Requiem: Lacrimosa', 'K. 626', 1791, 'requiem-lacrimosa' UNION ALL
+    SELECT 'mozart', '아이네 클라이네 나흐트무지크 1악장', 'Eine kleine Nachtmusik: Allegro', 'K. 525', 1787, 'eine-kleine-nachtmusik-1' UNION ALL
+
+    -- 베토벤
+    SELECT 'beethoven', '월광 소나타 1악장', 'Piano Sonata No. 14: Adagio sostenuto', 'Op. 27 No. 2', 1801, 'moonlight-sonata-1' UNION ALL
+    SELECT 'beethoven', '엘리제를 위하여', 'Fur Elise', 'WoO 59', 1810, 'fur-elise' UNION ALL
+    SELECT 'beethoven', '교향곡 7번 2악장', 'Symphony No. 7: Allegretto', 'Op. 92', 1812, 'symphony-7-allegretto' UNION ALL
+
+    -- 슈베르트
+    SELECT 'schubert', '아베 마리아', 'Ellens dritter Gesang', 'D. 839', 1825, 'ave-maria' UNION ALL
+    SELECT 'schubert', '송어', 'Die Forelle', 'D. 550', 1817, 'die-forelle' UNION ALL
+    SELECT 'schubert', '즉흥곡 3번', 'Impromptu No. 3', 'Op. 90 No. 3 / D. 899', 1827, 'impromptu-op90-3' UNION ALL
+
+    -- 쇼팽
+    SELECT 'chopin', '야상곡 2번', 'Nocturne No. 2', 'Op. 9 No. 2', 1832, 'nocturne-op9-2' UNION ALL
+    SELECT 'chopin', '빗방울 전주곡', 'Prelude No. 15 (Raindrop)', 'Op. 28 No. 15', 1839, 'raindrop-prelude' UNION ALL
+    SELECT 'chopin', '혁명 연습곡', 'Etude (Revolutionary)', 'Op. 10 No. 12', 1831, 'revolutionary-etude' UNION ALL
+
+    -- 차이콥스키
+    SELECT 'tchaikovsky', '백조의 호수 정경', 'Swan Lake: Scene', 'Op. 20', 1876, 'swan-lake-scene' UNION ALL
+    SELECT 'tchaikovsky', '호두까기인형 꽃의 왈츠', 'The Nutcracker: Waltz of the Flowers', 'Op. 71', 1892, 'waltz-of-the-flowers' UNION ALL
+    SELECT 'tchaikovsky', '사계 10월 가을의 노래', 'The Seasons: October', 'Op. 37a', 1876, 'seasons-october' UNION ALL
+
+    -- 그리그
+    SELECT 'grieg', '페르 귄트 아침의 기분', 'Peer Gynt: Morning Mood', 'Op. 46', 1875, 'morning-mood' UNION ALL
+    SELECT 'grieg', '페르 귄트 산왕의 궁전에서', 'Peer Gynt: In the Hall of the Mountain King', 'Op. 46', 1875, 'hall-of-the-mountain-king' UNION ALL
+    SELECT 'grieg', '서정 소품집 아리에타', 'Lyric Pieces: Arietta', 'Op. 12 No. 1', 1867, 'arietta' UNION ALL
+
+    -- 드뷔시 (달빛은 위에 별도로 있다)
+    SELECT 'debussy', '아라베스크 1번', 'Deux Arabesques No. 1', 'L. 66', 1891, 'arabesque-1' UNION ALL
+    SELECT 'debussy', '아마빛 머리의 소녀', 'La fille aux cheveux de lin', 'L. 117', 1910, 'la-fille-aux-cheveux-de-lin' UNION ALL
+    SELECT 'debussy', '꿈', 'Reverie', 'L. 68', 1890, 'reverie' UNION ALL
+
+    -- 사티 (짐노페디 1번은 위에 별도로 있다)
+    SELECT 'satie', '짐노페디 3번', 'Gymnopedie No. 3', NULL, 1888, 'gymnopedie-no-3' UNION ALL
+    SELECT 'satie', '그노시엔느 1번', 'Gnossienne No. 1', NULL, 1890, 'gnossienne-no-1' UNION ALL
+    SELECT 'satie', '너를 원해', 'Je te veux', NULL, 1897, 'je-te-veux' UNION ALL
+
+    -- 라흐마니노프
+    SELECT 'rachmaninoff', '피아노 협주곡 2번 2악장', 'Piano Concerto No. 2: Adagio sostenuto', 'Op. 18', 1901, 'piano-concerto-2-adagio' UNION ALL
+    SELECT 'rachmaninoff', '파가니니 주제 변주곡 18변주', 'Rhapsody on a Theme of Paganini: Variation 18', 'Op. 43', 1934, 'paganini-variation-18' UNION ALL
+    SELECT 'rachmaninoff', '보칼리제', 'Vocalise', 'Op. 34 No. 14', 1912, 'vocalise' UNION ALL
+
+    -- 라벨
+    SELECT 'ravel', '죽은 왕녀를 위한 파반느', 'Pavane pour une infante defunte', 'M. 19', 1899, 'pavane-infante-defunte' UNION ALL
+    SELECT 'ravel', '볼레로', 'Bolero', 'M. 81', 1928, 'bolero' UNION ALL
+    SELECT 'ravel', '물의 유희', 'Jeux d''eau', 'M. 30', 1901, 'jeux-deau' UNION ALL
+
+    -- 시벨리우스
+    SELECT 'sibelius', '핀란디아', 'Finlandia', 'Op. 26', 1899, 'finlandia' UNION ALL
+    SELECT 'sibelius', '슬픈 왈츠', 'Valse triste', 'Op. 44 No. 1', 1904, 'valse-triste' UNION ALL
+    SELECT 'sibelius', '투오넬라의 백조', 'The Swan of Tuonela', 'Op. 22 No. 2', 1895, 'swan-of-tuonela'
+) d ON d.composer_slug = c.slug;
+
+
+-- ---------------------------------------------------------------------------
+-- 음원 (유튜브)
+--
+-- >>> 여기에 영상 ID 만 채우면 된다. <<<
+--
+-- 아래 표에서 두 번째 칸(빈 문자열)에 11자 영상 ID 를 넣고 재시작한다.
+-- 예:  SELECT 'fur-elise', 'rEGOihjqO9w', 'Alice Sara Ott (2019)' UNION ALL
+--
+-- 빈 문자열인 줄은 건너뛴다(맨 아래 WHERE 절). 그래서 한 번에 다 채울 필요 없이
+-- 하나씩 늘려가면 된다.
+--
+-- ID 는 유튜브 주소의 v= 뒤에 오는 11자다.
+--   https://www.youtube.com/watch?v=rEGOihjqO9w
+--                                   ^^^^^^^^^^^
+--
+-- 넣기 전에 확인할 것:
+--   - 공식 채널인가 (오케스트라 공식, 레이블, 아티스트 공식). 팬 재업로드는 쓰지 않는다.
+--   - 퍼가기가 열려 있는가. 관리 화면 미리보기로 실제 재생해 보는 게 가장 확실하다.
+--     oEmbed 가 제목을 가져와도 퍼가기 금지(에러 101/150)일 수 있다.
+-- ---------------------------------------------------------------------------
+
+INSERT INTO recording (work_id, source_type, youtube_id, performer, license, source_url, is_default, available, created_at)
+SELECT w.id, 'YOUTUBE', v.video_id,
+       NULLIF(v.performer, ''),
+       'YouTube 임베드',
+       'https://www.youtube.com/watch?v=' || v.video_id,
+       TRUE, TRUE, CURRENT_TIMESTAMP
+FROM work w
+JOIN (
+    --     곡 slug                        영상 ID (11자)   연주자
+    SELECT 'clair-de-lune' AS work_slug,  '' AS video_id, '' AS performer UNION ALL
+    SELECT 'gymnopedie-no-1',             '',             '' UNION ALL
+
+    SELECT 'goldberg-aria',               '',             '' UNION ALL
+    SELECT 'cello-suite-1-prelude',       '',             '' UNION ALL
+    SELECT 'air-on-the-g-string',         '',             '' UNION ALL
+
+    SELECT 'rondo-alla-turca',            '',             '' UNION ALL
+    SELECT 'requiem-lacrimosa',           '',             '' UNION ALL
+    SELECT 'eine-kleine-nachtmusik-1',    '',             '' UNION ALL
+
+    SELECT 'moonlight-sonata-1',          '',             '' UNION ALL
+    SELECT 'fur-elise',                   '',             '' UNION ALL
+    SELECT 'symphony-7-allegretto',       '',             '' UNION ALL
+
+    SELECT 'ave-maria',                   '',             '' UNION ALL
+    SELECT 'die-forelle',                 '',             '' UNION ALL
+    SELECT 'impromptu-op90-3',            '',             '' UNION ALL
+
+    SELECT 'nocturne-op9-2',              '',             '' UNION ALL
+    SELECT 'raindrop-prelude',            '',             '' UNION ALL
+    SELECT 'revolutionary-etude',         '',             '' UNION ALL
+
+    SELECT 'swan-lake-scene',             '',             '' UNION ALL
+    SELECT 'waltz-of-the-flowers',        '',             '' UNION ALL
+    SELECT 'seasons-october',             '',             '' UNION ALL
+
+    SELECT 'morning-mood',                '',             '' UNION ALL
+    SELECT 'hall-of-the-mountain-king',   '',             '' UNION ALL
+    SELECT 'arietta',                     '',             '' UNION ALL
+
+    SELECT 'arabesque-1',                 '',             '' UNION ALL
+    SELECT 'la-fille-aux-cheveux-de-lin', '',             '' UNION ALL
+    SELECT 'reverie',                     '',             '' UNION ALL
+
+    SELECT 'gymnopedie-no-3',             '',             '' UNION ALL
+    SELECT 'gnossienne-no-1',             '',             '' UNION ALL
+    SELECT 'je-te-veux',                  '',             '' UNION ALL
+
+    SELECT 'piano-concerto-2-adagio',     '',             '' UNION ALL
+    SELECT 'paganini-variation-18',       '',             '' UNION ALL
+    SELECT 'vocalise',                    '',             '' UNION ALL
+
+    SELECT 'pavane-infante-defunte',      '',             '' UNION ALL
+    SELECT 'bolero',                      '',             '' UNION ALL
+    SELECT 'jeux-deau',                   '',             '' UNION ALL
+
+    SELECT 'finlandia',                   '',             '' UNION ALL
+    SELECT 'valse-triste',                '',             '' UNION ALL
+    SELECT 'swan-of-tuonela',             '',             ''
+) v ON v.work_slug = w.slug
+WHERE v.video_id <> '';   -- 빈 줄은 건너뛴다
