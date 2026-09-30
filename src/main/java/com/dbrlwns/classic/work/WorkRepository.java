@@ -33,6 +33,15 @@ public interface WorkRepository extends JpaRepository<Work, Long> {
     @Query("select w from Work w join fetch w.composer order by w.createdAt desc")
     List<Work> findAllWithComposer();
 
+    /**
+     * 관리 대시보드용. 음원의 영상 ID 를 표에 뿌려서 data.sql 로 옮겨 적을 수 있게 한다.
+     * create-drop 이라 재시작하면 관리 화면에서 넣은 음원은 사라지므로,
+     * 지우기 전에 ID 를 회수할 창구가 필요하다.
+     */
+    @Query("select distinct w from Work w join fetch w.composer left join fetch w.recordings "
+            + "order by w.createdAt desc")
+    List<Work> findAllWithDetails();
+
     @Query("select distinct w from Work w join fetch w.composer left join fetch w.recordings "
             + "where w.composer.slug = :slug and w.published = true order by w.title asc")
     List<Work> findPublishedByComposerSlug(String slug);

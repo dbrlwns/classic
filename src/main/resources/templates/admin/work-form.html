@@ -80,13 +80,20 @@
 
         <table th:if="${recordings != null and !#lists.isEmpty(recordings)}">
             <thead>
-            <tr><th>연주</th><th>소스</th><th>상태</th><th></th></tr>
+            <tr><th>연주</th><th>영상 ID</th><th>소스</th><th>상태</th><th></th></tr>
             </thead>
             <tbody>
             <tr th:each="r : ${recordings}">
                 <td>
                     <span th:text="${r.performer} ?: '(연주자 미입력)'"></span>
                     <div style="color:var(--text-muted);font-size:12px;" th:text="${r.license}"></div>
+                </td>
+                <!-- 재시작하면 이 음원은 사라진다. data.sql 로 옮겨 적을 수 있게 ID 를 노출한다. -->
+                <td style="white-space:nowrap;">
+                    <code class="copyable" th:if="${r.youtubeId}" th:text="${r.youtubeId}">videoId</code>
+                    <button type="button" class="btn secondary small copy-btn"
+                            th:if="${r.youtubeId}" th:attr="data-copy=${r.youtubeId}">복사</button>
+                    <span th:unless="${r.youtubeId}" style="color:var(--text-muted);">—</span>
                 </td>
                 <td>
                     <span th:text="${r.sourceType}"></span>
@@ -211,6 +218,7 @@
 </main>
 
 <script th:src="@{/js/player.js}"></script>
+<script th:src="@{/js/copy.js}"></script>
 <script th:inline="javascript">
     /*<![CDATA[*/
     (function () {
