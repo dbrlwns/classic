@@ -31,11 +31,17 @@ spring:
   thymeleaf:
     cache: false
 
-  # 시드 데이터는 data.sql 한 곳에서 관리한다.
-  # 매 기동마다 실행되지만 ddl-auto 가 create-drop 이라 중복이 쌓이지 않는다.
+  # 시드 데이터. 매 기동마다 실행되지만 ddl-auto 가 create-drop 이라 중복이 쌓이지 않는다.
+  #
+  # 순서가 중요하다. data.sql 이 곡을 INSERT 하고, data-stories.sql 이 그 곡의
+  # story 를 UPDATE 한다. data-locations 를 지정하면 기본 경로가 무시되므로
+  # data.sql 도 명시해야 한다.
   sql:
     init:
       mode: always
+      data-locations:
+        - classpath:data.sql
+        - classpath:data-stories.sql
 
 server:
   port: 8080
