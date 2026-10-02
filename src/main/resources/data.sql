@@ -112,7 +112,7 @@ FROM composer WHERE slug = 'satie';
 -- ---------------------------------------------------------------------------
 
 INSERT INTO work (composer_id, title, title_original, catalog, year_composed, slug, published, created_at)
-SELECT c.id, d.title, d.title_original, d.catalog, d.year_composed, d.slug, FALSE, CURRENT_TIMESTAMP
+SELECT c.id, d.title, d.title_original, d.catalog, d.year_composed, d.slug, TRUE, CURRENT_TIMESTAMP
 FROM composer c
 JOIN (
     -- 바흐
@@ -210,52 +210,52 @@ JOIN (
     SELECT 'clair-de-lune' AS work_slug,  '' AS video_id, '' AS performer UNION ALL
     SELECT 'gymnopedie-no-1',             '',             '' UNION ALL
 
-    SELECT 'goldberg-aria',               '',             '' UNION ALL
-    SELECT 'cello-suite-1-prelude',       '',             '' UNION ALL
-    SELECT 'air-on-the-g-string',         '',             '' UNION ALL
+    SELECT 'goldberg-aria',               '43sTxRVpRBM',             '' UNION ALL
+    SELECT 'cello-suite-1-prelude',       'mGQLXRTl3Z0',             '' UNION ALL
+    SELECT 'air-on-the-g-string',         'bvj25SpFUJ8',             '' UNION ALL
 
-    SELECT 'rondo-alla-turca',            '',             '' UNION ALL
-    SELECT 'requiem-lacrimosa',           '',             '' UNION ALL
-    SELECT 'eine-kleine-nachtmusik-1',    '',             '' UNION ALL
+    SELECT 'rondo-alla-turca',            'quxTnEEETbo',             '' UNION ALL
+    SELECT 'requiem-lacrimosa',           'k1-TrAvp_xs',             '' UNION ALL
+    SELECT 'eine-kleine-nachtmusik-1',    'oy2zDJPIgwc',             '' UNION ALL
 
-    SELECT 'moonlight-sonata-1',          '',             '' UNION ALL
-    SELECT 'fur-elise',                   '',             '' UNION ALL
-    SELECT 'symphony-7-allegretto',       '',             '' UNION ALL
+    SELECT 'moonlight-sonata-1',          'lC0ncp6VE5s',             '' UNION ALL
+    SELECT 'fur-elise',                   '_XG3h6LywNQ',             '' UNION ALL
+    SELECT 'symphony-7-allegretto',       'vCHREyE5GzQ',             '' UNION ALL
 
-    SELECT 'ave-maria',                   '',             '' UNION ALL
-    SELECT 'die-forelle',                 '',             '' UNION ALL
-    SELECT 'impromptu-op90-3',            '',             '' UNION ALL
+    SELECT 'ave-maria',                   '2H5rusicEnc',             '' UNION ALL
+    SELECT 'die-forelle',                 'NF9DrUXowBo',             '' UNION ALL
+    SELECT 'impromptu-op90-3',            'FxhbAGwEYGQ',             '' UNION ALL
 
-    SELECT 'nocturne-op9-2',              '',             '' UNION ALL
-    SELECT 'raindrop-prelude',            '',             '' UNION ALL
-    SELECT 'revolutionary-etude',         '',             '' UNION ALL
+    SELECT 'nocturne-op9-2',              '9E6b3swbnWg',             '' UNION ALL
+    SELECT 'raindrop-prelude',            'MmzER7X2424',             '' UNION ALL
+    SELECT 'revolutionary-etude',         '0C_DzcWw1Us',             '' UNION ALL
 
-    SELECT 'swan-lake-scene',             '',             '' UNION ALL
-    SELECT 'waltz-of-the-flowers',        '',             '' UNION ALL
-    SELECT 'seasons-october',             '',             '' UNION ALL
+    SELECT 'swan-lake-scene',             'S76CGGPqI3s',             '' UNION ALL
+    SELECT 'waltz-of-the-flowers',        'QxHkLdQy5f0',             '' UNION ALL
+    SELECT 'seasons-october',             'Aq7TNv7Pbm8',             '' UNION ALL
 
-    SELECT 'morning-mood',                '',             '' UNION ALL
-    SELECT 'hall-of-the-mountain-king',   '',             '' UNION ALL
-    SELECT 'arietta',                     '',             '' UNION ALL
+    SELECT 'morning-mood',                '-rh8gMvzPw0',             '' UNION ALL
+    SELECT 'hall-of-the-mountain-king',   'xrIYT-MrVaI',             '' UNION ALL
+    SELECT 'arietta',                     '5TbQftYOKms',             '' UNION ALL
 
-    SELECT 'arabesque-1',                 '',             '' UNION ALL
-    SELECT 'la-fille-aux-cheveux-de-lin', '',             '' UNION ALL
-    SELECT 'reverie',                     '',             '' UNION ALL
+    SELECT 'arabesque-1',                 'Yh36PaE-Pf0',             '' UNION ALL
+    SELECT 'la-fille-aux-cheveux-de-lin', 'KYLjHziapRs',             '' UNION ALL
+    SELECT 'reverie',                     '9AuzJ2GBCGw',             '' UNION ALL
 
-    SELECT 'gymnopedie-no-3',             '',             '' UNION ALL
-    SELECT 'gnossienne-no-1',             '',             '' UNION ALL
-    SELECT 'je-te-veux',                  '',             '' UNION ALL
+    SELECT 'gymnopedie-no-3',             'dqQ_QAcHgM8',             '' UNION ALL
+    SELECT 'gnossienne-no-1',             'PLFVGwGQcB0',             '' UNION ALL
+    SELECT 'je-te-veux',                  'wbT9DeULzU4',             '' UNION ALL
 
-    SELECT 'piano-concerto-2-adagio',     '',             '' UNION ALL
-    SELECT 'paganini-variation-18',       '',             '' UNION ALL
-    SELECT 'vocalise',                    '',             '' UNION ALL
+    SELECT 'piano-concerto-2-adagio',     'HfPE3cgYyco',             '' UNION ALL
+    SELECT 'paganini-variation-18',       'pGiFVbEWC40',             '' UNION ALL
+    SELECT 'vocalise',                    'DuBexGEe1S4',             '' UNION ALL
 
-    SELECT 'pavane-infante-defunte',      '',             '' UNION ALL
-    SELECT 'bolero',                      '',             '' UNION ALL
-    SELECT 'jeux-deau',                   '',             '' UNION ALL
+    SELECT 'pavane-infante-defunte',      'GKkeDqJBlK8',             '' UNION ALL
+    SELECT 'bolero',                      'r30D3SW4OVw',             '' UNION ALL
+    SELECT 'jeux-deau',                   'jnKFIp7CahY',             '' UNION ALL
 
-    SELECT 'finlandia',                   '',             '' UNION ALL
-    SELECT 'valse-triste',                '',             '' UNION ALL
-    SELECT 'swan-of-tuonela',             '',             ''
+    SELECT 'finlandia',                   'F5zg_af9b8c',             '' UNION ALL
+    SELECT 'valse-triste',                'Bi4OnSPc3Yc',             '' UNION ALL
+    SELECT 'swan-of-tuonela',             'HjyLWoJvtME',             ''
 ) v ON v.work_slug = w.slug
 WHERE v.video_id <> '';   -- 빈 줄은 건너뛴다
