@@ -42,7 +42,9 @@
                     <h2><a th:href="@{'/works/' + ${work.slug}}" th:text="${work.title}">제목</a></h2>
                     <p class="meta">
                         <span th:if="${work.catalog}" th:text="${work.catalog}"></span>
-                        <span th:if="${work.yearComposed}" th:text="' · ' + ${work.yearComposed}"></span>
+                        <!-- 작품 번호가 없으면 가운뎃점이 혼자 남는다("· 1888") -->
+                        <span th:if="${work.yearComposed}"
+                              th:text="${work.catalog != null} ? ' · ' + ${work.yearComposed} : ${work.yearComposed}"></span>
                     </p>
                     <p class="summary" th:if="${work.summary}" th:text="${work.summary}"></p>
                     <p class="card-performer"

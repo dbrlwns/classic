@@ -309,6 +309,50 @@ h1, h2, h3 { font-family: var(--serif); line-height: 1.3; }
 /* 격자에서는 한 칸이 좁으므로 단일 열로 떨어지는 지점을 따로 두지 않는다.
    auto-fill 이 알아서 1열까지 줄어든다. */
 
+/* ---------- 곡 상세 하단: 이 작곡가의 다른 곡 ---------- */
+
+.related { margin-top: 56px; }
+
+.related h2 {
+    font-size: 19px;
+    margin: 0 0 18px;
+}
+
+/* 최대 3개뿐이라 auto-fill 대신 열 수를 고정한다.
+   auto-fill 이면 2개일 때 칸이 어정쩡하게 늘어난다. */
+.related-list[data-view="grid"] {
+    grid-template-columns: repeat(3, 1fr);
+    gap: 20px 18px;
+}
+
+.related-list .work-card h3 {
+    font-family: var(--serif);
+    font-size: 16px;
+    line-height: 1.35;
+    margin: 0 0 4px;
+
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+}
+
+.related-list .work-card .meta { font-size: 12.5px; margin-bottom: 5px; }
+
+.related-list .work-card .summary {
+    font-size: 13px;
+    -webkit-line-clamp: 2;     /* 하단 블록이라 본문보다 짧게 */
+}
+
+.related-more {
+    margin: 20px 0 0;
+    font-size: 14px;
+}
+
+@media (max-width: 640px) {
+    .related-list[data-view="grid"] { grid-template-columns: 1fr; }
+}
+
 .work-header { margin-bottom: 28px; }
 .work-header h1 { margin: 0 0 8px; font-size: 32px; }
 .work-header .meta { color: var(--text-muted); font-size: 15px; margin: 0; }

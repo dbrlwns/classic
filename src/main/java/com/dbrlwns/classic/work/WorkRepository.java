@@ -42,7 +42,30 @@ public interface WorkRepository extends JpaRepository<Work, Long> {
             + "order by w.createdAt desc")
     List<Work> findAllWithDetails();
 
+    /**
+     * 작곡가의 곡을 작곡 연도순으로 준다.
+     *
+     * 제목 가나다순은 아무 의미가 없는 순서였다. 연도순으로 놓으면 그 작곡가가
+     * 어떻게 변해갔는지가 목록 자체로 읽힌다.
+     * 연도를 모르는 곡은 뒤로 보내고 제목순으로 묶는다.
+     */
     @Query("select distinct w from Work w join fetch w.composer left join fetch w.recordings "
-            + "where w.composer.slug = :slug and w.published = true order by w.title asc")
+            + "where w.composer.slug = :slug and w.published = true "
+            + "order by w.yearComposed asc nulls last, w.title asc")
     List<Work> findPublishedByComposerSlug(String slug);
+
+    /**
+     * 곡 상세 하단의 "이 작곡가의 다른 곡".
+     *
+     * 이전/다음 대신 같은 작곡가의 곡을 묶어 보여준다. 제목순의 이전/다음은
+     * 자의적인 순서라 "다음 곡"에 필연성이 없는 반면, "같은 작곡가"는
+     * 묶음의 이유가 분명하다.
+     *
+     * 개수 제한은 호출하는 쪽에서 한다. 페치 조인과 페이징을 같이 쓰면
+     * Hibernate 가 메모리에서 잘라내며 경고를 낸다.
+     */
+    @Query("select distinct w from Work w join fetch w.composer left join fetch w.recordings "
+            + "where w.composer.id = :composerId and w.id <> :excludeWorkId and w.published = true "
+            + "order by w.yearComposed asc nulls last, w.title asc")
+    List<Work> findSiblingsByComposer(Long composerId, Long excludeWorkId);
 }

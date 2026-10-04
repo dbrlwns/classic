@@ -36,11 +36,49 @@
     </section>
 
     <article class="story" th:utext="${storyHtml}"></article>
+
+    <!--
+      이전/다음 대신 같은 작곡가의 곡을 묶어 놓는다.
+      제목순의 이전/다음은 자의적인 순서라 "다음 곡"에 필연성이 없는 반면,
+      "같은 작곡가"는 묶음의 이유가 분명하고 썸네일이 있어 고를 수 있다.
+
+      글을 다 읽은 자리에 나오므로 읽는 중에는 시야에 들어오지 않는다.
+    -->
+    <nav class="section related" th:if="${!#lists.isEmpty(siblings)}"
+         aria-labelledby="related-heading">
+        <h2 id="related-heading" th:text="${work.composer.name} + '의 다른 곡'">다른 곡</h2>
+
+        <ul class="work-list related-list" data-view="grid">
+            <li class="work-card" th:each="sibling : ${siblings}"
+                th:with="rec=${sibling.playableRecording}">
+                <div class="work-card-body">
+                    <h3><a th:href="@{'/works/' + ${sibling.slug}}" th:text="${sibling.title}">제목</a></h3>
+                    <p class="meta">
+                        <span th:if="${sibling.catalog}" th:text="${sibling.catalog}"></span>
+                        <!-- 작품 번호가 없으면 가운뎃점이 혼자 남는다("· 1888") -->
+                        <span th:if="${sibling.yearComposed}"
+                              th:text="${sibling.catalog != null} ? ' · ' + ${sibling.yearComposed} : ${sibling.yearComposed}"></span>
+                    </p>
+                    <p class="summary" th:if="${sibling.summary}" th:text="${sibling.summary}"></p>
+                </div>
+
+                <div th:replace="~{fragments/player :: facade(${sibling}, ${rec})}"></div>
+                <div th:replace="~{fragments/player :: placeholder(${sibling}, ${rec})}"></div>
+            </li>
+        </ul>
+
+        <p class="related-more">
+            <a th:href="@{'/composers/' + ${work.composer.slug}}"
+               th:text="${work.composer.name} + ' 전체 보기 →'">전체 보기</a>
+        </p>
+    </nav>
 </main>
 
 <footer th:replace="~{layout :: footer}"></footer>
 
-<script th:src="@{/js/player.js}"></script>
+<!-- player.js 와 하단 카드의 재생 버튼 처리를 함께 불러온다.
+     아래 본문 플레이어 스크립트가 Classic 을 쓰므로 이 블록이 먼저 와야 한다. -->
+<th:block th:replace="~{fragments/player :: script}"></th:block>
 <script th:if="${recording != null}" th:inline="javascript">
     /*<![CDATA[*/
     var options = {
