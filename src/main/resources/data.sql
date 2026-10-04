@@ -329,8 +329,8 @@ SELECT w.id, 'YOUTUBE', v.video_id,
 FROM work w
 JOIN (
     --     곡 slug                        영상 ID (11자)   연주자
-    SELECT 'clair-de-lune' AS work_slug,  '' AS video_id, '' AS performer UNION ALL
-    SELECT 'gymnopedie-no-1',             '',             '' UNION ALL
+    SELECT 'clair-de-lune' AS work_slug,  'WKU8DJzipW4' AS video_id, '' AS performer UNION ALL
+    SELECT 'gymnopedie-no-1',             'S-Xm7s9eGxU',             '' UNION ALL
 
     SELECT 'goldberg-aria',               '43sTxRVpRBM',             '' UNION ALL
     SELECT 'cello-suite-1-prelude',       'mGQLXRTl3Z0',             '' UNION ALL
