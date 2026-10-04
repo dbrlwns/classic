@@ -18,8 +18,25 @@
     <article class="story" th:utext="${bioHtml}"></article>
 
     <div class="section">
-        <h2>곡</h2>
-        <ul class="work-list">
+        <div class="section-head">
+            <h2>곡</h2>
+            <!--
+              메인과 같은 전환. 선택은 localStorage 를 공유하므로 한쪽에서 바꾸면
+              다른 쪽도 같은 보기로 열린다.
+
+              메인과 달리 컨테이너 폭은 넓히지 않는다(works-main id 가 없다).
+              위에 작곡가 소개 글이 있어서 1120px 로 벌리면 줄 길이가 너무 길어진다.
+              작곡가 한 명당 곡이 서너 개라 760px 안의 2열로 충분하다.
+            -->
+            <div class="view-toggle" th:if="${!#lists.isEmpty(works)}">
+                <button type="button" data-view-set="list" aria-pressed="true">목록형</button>
+                <button type="button" data-view-set="grid" aria-pressed="false">격자형</button>
+            </div>
+        </div>
+
+        <script th:src="@{/js/view-toggle.js}"></script>
+
+        <ul class="work-list" id="work-list" data-view="list">
             <li class="work-card" th:each="work : ${works}" th:with="rec=${work.playableRecording}">
                 <div class="work-card-body">
                     <h2><a th:href="@{'/works/' + ${work.slug}}" th:text="${work.title}">제목</a></h2>
@@ -34,6 +51,7 @@
                 </div>
 
                 <div th:replace="~{fragments/player :: facade(${work}, ${rec})}"></div>
+                <div th:replace="~{fragments/player :: placeholder(${work}, ${rec})}"></div>
             </li>
         </ul>
         <p th:if="${#lists.isEmpty(works)}" class="empty">아직 공개된 곡이 없습니다.</p>
