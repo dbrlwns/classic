@@ -247,13 +247,24 @@ h1, h2, h3 { font-family: var(--serif); line-height: 1.3; }
    (문서 순서는 body -> player 이므로 격자에서만 뒤집는다) */
 
 /* 격자일 때만 컨테이너를 넓힌다. 760px 는 글을 읽기에 맞는 폭이지만
-   격자에서는 2열밖에 나오지 않는다. 글 읽는 화면은 그대로 760px 로 둔다. */
-.container[data-view="grid"] { max-width: 1120px; }
+   격자에서는 2열밖에 나오지 않는다. 글 읽는 화면은 그대로 760px 로 둔다.
+   한 줄에 3칸이 목표이므로 1120px 까지 벌릴 필요가 없다. */
+.container[data-view="grid"] { max-width: 1000px; }
 
+/* 한 줄 최대 3칸. auto-fill 로 두면 폭이 넓어질수록 칸이 계속 늘어나
+   4칸, 5칸이 되면서 칸이 좁아진다. 열 수를 고정해 칸 크기를 지킨다. */
 .work-list[data-view="grid"] {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
-    gap: 26px 20px;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 28px 22px;
+}
+
+@media (max-width: 860px) {
+    .work-list[data-view="grid"] { grid-template-columns: repeat(2, 1fr); }
+}
+
+@media (max-width: 560px) {
+    .work-list[data-view="grid"] { grid-template-columns: 1fr; }
 }
 
 .work-list[data-view="grid"] .work-card {
@@ -349,7 +360,13 @@ h1, h2, h3 { font-family: var(--serif); line-height: 1.3; }
     font-size: 14px;
 }
 
-@media (max-width: 640px) {
+/* 메인 격자와 같은 지점에서 접힌다. 이 블록은 위의 .work-list 규칙보다
+   뒤에 있어 같은 특이도에서 이기므로 자기 breakpoint 를 따로 가져야 한다. */
+@media (max-width: 860px) {
+    .related-list[data-view="grid"] { grid-template-columns: repeat(2, 1fr); }
+}
+
+@media (max-width: 560px) {
     .related-list[data-view="grid"] { grid-template-columns: 1fr; }
 }
 
