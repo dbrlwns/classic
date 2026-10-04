@@ -5,13 +5,30 @@
 <body>
 <header th:replace="~{layout :: header}"></header>
 
-<main class="container">
+<!-- 격자형일 때 폭을 넓히기 위해 JS 가 여기에도 data-view 를 붙인다.
+     760px 는 글을 읽기에 맞는 폭이지만 격자에는 좁아 2열밖에 나오지 않는다. -->
+<main class="container" id="works-main" data-view="list">
     <div th:if="${#lists.isEmpty(works)}" class="empty">
         <p>아직 공개된 곡이 없습니다.</p>
         <p><a th:href="@{/admin}">관리 화면</a>에서 첫 곡을 등록해 보세요.</p>
     </div>
 
-    <ul class="work-list">
+    <!--
+      보기 방식 전환. 레이아웃은 CSS 가 ul 의 data-view 를 보고 결정하고,
+      마크업은 한 벌만 쓴다. 격자에서 썸네일을 위로 올리는 것은 order 로 처리한다.
+
+      선택은 localStorage 에 저장한다. 보는 사람마다 다른 취향이고 서버가
+      알 필요가 없는 값이다.
+    -->
+    <div class="view-toggle" th:if="${!#lists.isEmpty(works)}">
+        <button type="button" data-view-set="list" aria-pressed="true">목록형</button>
+        <button type="button" data-view-set="grid" aria-pressed="false">격자형</button>
+    </div>
+
+    <!-- ul 이 파싱되기 전에 저장된 선택을 적용해 깜빡임을 막는다. -->
+    <script th:src="@{/js/view-toggle.js}"></script>
+
+    <ul class="work-list" id="work-list" data-view="list">
         <li class="work-card" th:each="work : ${works}" th:with="rec=${work.playableRecording}">
 
             <div class="work-card-body">
@@ -21,6 +38,9 @@
                     <span th:if="${work.catalog}" th:text="' · ' + ${work.catalog}"></span>
                     <span th:if="${work.yearComposed}" th:text="' · ' + ${work.yearComposed}"></span>
                 </p>
+
+                <!-- 격자형에서도 한 줄 소개를 남긴다. 이 문장이 빠지면 격자가
+                     그냥 영상 목록이 된다. 읽을 거리가 주인공이라는 포지션을 지킨다. -->
                 <p class="summary" th:if="${work.summary}" th:text="${work.summary}">한 줄 소개</p>
 
                 <!-- and 안에서는 SpEL 이 Boolean 을 요구한다. 문자열을 그대로 두면
@@ -30,7 +50,9 @@
                    th:text="${rec.performer}"></p>
             </div>
 
+            <!-- 각 프래그먼트가 rec 를 보고 자기를 그릴지 결정한다. -->
             <div th:replace="~{fragments/player :: facade(${work}, ${rec})}"></div>
+            <div th:replace="~{fragments/player :: placeholder(${work}, ${rec})}"></div>
 
         </li>
     </ul>

@@ -28,6 +28,23 @@
 </div>
 
 
+<!--
+  음원이 아직 없는 칸의 자리채움.
+
+  목록형에서는 보이지 않는다(CSS 에서 display: none). 격자형에서만 쓴다.
+  격자에서 썸네일이 없는 칸을 비워 두면 높이가 어긋나 깨져 보이기 때문이다.
+-->
+<!--
+  조건은 프래그먼트 안에 둔다. 호출하는 쪽 태그에 th:if 와 th:replace 를 같이 쓰면
+  th:replace 가 먼저 처리되어(우선순위 100 vs 300) th:if 가 무시된다.
+-->
+<div class="work-card-player is-empty" th:fragment="placeholder(work, rec)" th:if="${rec == null}">
+    <div class="yt-placeholder">
+        <span th:text="${work.composer.name}">작곡가</span>
+    </div>
+</div>
+
+
 <!-- 목록에 facade 가 하나라도 있는 페이지는 이 스크립트를 넣는다. -->
 <th:block th:fragment="script">
     <script th:src="@{/js/player.js}"></script>
