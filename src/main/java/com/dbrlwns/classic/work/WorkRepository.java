@@ -23,11 +23,19 @@ public interface WorkRepository extends JpaRepository<Work, Long> {
     boolean existsBySlug(String slug);
 
     /**
-     * 목록 화면은 카드마다 대표 음원의 썸네일을 띄우므로 recordings 까지 끌어온다.
+     * 메인 목록. 작곡 연도순으로 준다.
+     *
+     * 등록순이었을 때는 지금 우연히 바흐-모차르트-베토벤 순으로 보일 뿐,
+     * 곡을 추가하면 섞인다. 연도순으로 놓으면 목록을 훑는 것만으로
+     * 시대가 흐르고, 작곡가 페이지의 정렬과도 일관된다.
+     * 연도를 모르는 곡은 뒤로 보내고 제목순으로 묶는다.
+     *
+     * 카드마다 대표 음원의 썸네일을 띄우므로 recordings 까지 끌어온다.
      * 여기서 빠뜨리면 뷰를 그릴 때 LazyInitializationException 이다.
      */
     @Query("select distinct w from Work w join fetch w.composer left join fetch w.recordings "
-            + "where w.published = true order by w.createdAt desc")
+            + "where w.published = true "
+            + "order by w.yearComposed asc nulls last, w.title asc")
     List<Work> findPublishedWithComposer();
 
     @Query("select w from Work w join fetch w.composer order by w.createdAt desc")

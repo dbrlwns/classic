@@ -3,14 +3,14 @@
 <head th:fragment="head(title)">
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title th:text="${title} + ' · Cadenza'">Cadenza</title>
+    <title th:text="${title} + ' · Moirai'">Moirai</title>
     <link rel="stylesheet" th:href="@{/css/app.css}">
 </head>
 <body>
 
 <header class="site-header" th:fragment="header">
     <div class="container">
-        <a class="site-title" th:href="@{/}">Cadenza</a>
+        <a class="site-title" th:href="@{/}">Moirai</a>
         <nav class="site-nav">
             <a th:href="@{/}">곡</a>
             <a th:href="@{/composers}">작곡가</a>
@@ -21,7 +21,13 @@
 
 <footer class="site-footer" th:fragment="footer">
     <div class="container">
-        <p>Cadenza — 클래식 곡에 얽힌 이야기</p>
+        <!-- 모이라이는 그리스 신화에서 실을 잣고, 길이를 재고, 끊는 세 여신이다.
+             이름의 고리는 "운명"이 아니라 "실"이다. 음악에서 선율을 line 이라 부르는 것과
+             같은 자리다. 운명 교향곡 쪽으로 가면 베토벤 한 곡에 묶여 좁아진다. -->
+        <p class="footer-tagline">
+            Moirai — 모든 곡은 하나의 실이다. 시작되고, 이어지고, 끝난다.
+            그 사이에 무슨 일이 있었는지를 적는다.
+        </p>
         <p>악곡은 퍼블릭 도메인이며, 음원은 각 출처의 라이선스를 따릅니다. 유튜브 음원은 임베드로만 재생됩니다.</p>
     </div>
 </footer>
