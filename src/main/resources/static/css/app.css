@@ -1,26 +1,59 @@
+/*
+ * 서체
+ *
+ * 라틴 문자를 먼저 두고 한글을 뒤에 둔다. 브라우저는 글자마다 스택을 훑어
+ * 그 글자를 가진 첫 폰트를 쓰므로, 이 순서면 알파벳과 숫자는 EB Garamond 로,
+ * 한글은 나눔명조로 그려진다.
+ *
+ * 이전 스택은 "Iowan Old Style", "Apple Garamond", Georgia, "Noto Serif KR", serif
+ * 였는데, 앞의 셋에 한글이 없고 Noto Serif KR 은 맥에 기본 설치가 아니다.
+ * 결국 마지막 serif 를 거쳐 시스템 기본 한글 폰트(고딕)로 떨어져서,
+ * 본문 한글 전체가 고딕으로 그려지고 있었다. 콘텐츠의 대부분이 한글인데
+ * 세리프를 쓰려던 의도가 닿지 않았다.
+ *
+ * 다른 명조로 바꾸려면 --serif-ko 와 layout.html 의 Google Fonts 링크만 고치면 된다.
+ */
 :root {
-    --bg: #fbfaf8;
-    --surface: #ffffff;
-    --text: #1c1a17;
-    --text-muted: #6b645c;
-    --border: #e4ded6;
-    --accent: #8a5a2b;
-    --accent-soft: #f3ece3;
-    --danger: #a33a2a;
-    --radius: 10px;
-    --serif: "Iowan Old Style", "Apple Garamond", Georgia, "Noto Serif KR", serif;
+    --serif-latin: "EB Garamond";
+    --serif-ko: "Nanum Myeongjo";
+    --serif: var(--serif-latin), var(--serif-ko), Georgia, serif;
     --sans: -apple-system, BlinkMacSystemFont, "Pretendard", "Apple SD Gothic Neo", "Noto Sans KR", sans-serif;
+
+    --radius: 10px;
 }
 
+/*
+ * 색
+ *
+ * 핵심은 색을 더하는 것이 아니라 검정을 빼는 것이다. 본문을 순흑(#1c1a17)에서
+ * 갈색 잉크(#2e2419)로 옮기고 배경을 흰색에서 샌드로 옮기면, 브라운 계열을
+ * 따로 칠하지 않아도 화면 전체가 따뜻해진다.
+ *
+ * 모든 조합이 WCAG AA(4.5:1)를 넘는다. 가장 빠듯한 것이 muted 와 accent 로
+ * 라이트에서 각각 5.39, 5.66 이다.
+ */
+:root {
+    --bg: #f7f2e8;          /* 세월 든 종이 */
+    --surface: #fffdf8;
+    --text: #2e2419;        /* 검정이 아니라 갈색 잉크 */
+    --text-muted: #6e6152;
+    --border: #e0d6c4;
+    --accent: #875427;
+    --accent-soft: #efe6d6;
+    --danger: #9d3b26;
+}
+
+/* 밤에 램프 아래 놓인 낡은 책 쪽으로. 이전 다크는 거의 순검정이라
+   낮 화면의 따뜻함이 밤에 사라졌다. */
 @media (prefers-color-scheme: dark) {
     :root {
-        --bg: #16140f;
-        --surface: #201d18;
-        --text: #efe9e0;
-        --text-muted: #a49b8e;
-        --border: #35302a;
+        --bg: #1a1511;
+        --surface: #221c16;
+        --text: #e8ddc9;
+        --text-muted: #a2927c;
+        --border: #383025;
         --accent: #d8a866;
-        --accent-soft: #2b251d;
+        --accent-soft: #2b2419;
         --danger: #e0806e;
     }
 }

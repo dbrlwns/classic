@@ -4,6 +4,22 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title th:text="${title} + ' · Moirai'">Moirai</title>
+
+    <!--
+      본문 서체. 라틴은 EB Garamond(16세기 가라몽 복각), 한글은 나눔명조.
+
+      preconnect 두 줄은 폰트 파일을 받을 도메인에 미리 연결을 열어 둔다.
+      CSS 를 받은 뒤에야 gstatic 연결을 시작하면 그만큼 늦어진다.
+
+      한글 폰트는 용량이 크지만 Google Fonts 가 유니코드 구간별로 쪼개 보내므로
+      실제로 내려받는 양은 쓰이는 글자 범위에 한정된다. display=swap 이라
+      폰트가 늦어도 글이 먼저 보인다.
+    -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link rel="stylesheet"
+          href="https://fonts.googleapis.com/css2?family=EB+Garamond:ital,wght@0,400;0,500;0,600;1,400&family=Nanum+Myeongjo:wght@400;700;800&display=swap">
+
     <link rel="stylesheet" th:href="@{/css/app.css}">
 </head>
 <body>
