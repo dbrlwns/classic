@@ -120,6 +120,12 @@
                 events: {
                     onReady: function () {
                         self._ready = true;
+                        // 준비 전에 들어온 loadVideo 요청이 있으면 지금 처리한다.
+                        if (self._pendingLoad) {
+                            var pending = self._pendingLoad;
+                            self._pendingLoad = null;
+                            self.loadVideo(pending);
+                        }
                         self.bus.emit('ready');
                     },
                     onStateChange: function (event) {
@@ -143,6 +149,27 @@
             });
         });
         return this;
+    };
+
+    /**
+     * 같은 플레이어에 다른 영상을 올린다. 이어 듣기가 이걸로 다음 곡을 넣는다.
+     *
+     * loadVideoById 는 항목마다 시작·끝 지점을 받는다. 유튜브 네이티브
+     * 플레이리스트(loadPlaylist)는 그게 안 되므로, 긴 영상에서 한 악장만
+     * 재생하는 용도를 살리려면 이쪽이어야 한다.
+     *
+     * 아직 준비 전이면 요청을 들고 있다가 onReady 에서 처리한다.
+     */
+    YouTubeAdapter.prototype.loadVideo = function (options) {
+        if (!this._ready) {
+            this._pendingLoad = options;
+            return;
+        }
+        this.player.loadVideoById({
+            videoId: options.youtubeId,
+            startSeconds: options.startOffset || 0,
+            endSeconds: options.endOffset || undefined
+        });
     };
 
     YouTubeAdapter.prototype.play = function () {
@@ -210,6 +237,14 @@
         this.element.appendChild(audio);
         this.audio = audio;
         return this;
+    };
+
+    AudioAdapter.prototype.loadVideo = function (options) {
+        this.options = options;
+        if (this.audio) {
+            this.audio.src = options.audioUrl;
+            this.audio.load();
+        }
     };
 
     AudioAdapter.prototype.play = function () { this.audio.play(); };
