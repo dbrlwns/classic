@@ -58,6 +58,32 @@
     --dark-accent: #d8a866;
     --dark-accent-soft: #2b2419;
     --dark-danger: #e0806e;
+
+    /*
+     * 질감.
+     *
+     * 입자는 라이트에서 multiply 다. 밝은 바탕 위의 어두운 반점.
+     *
+     * 다크에서는 어두운 점을 곱해 봐야 보이지 않으므로 screen 으로 뒤집어
+     * 밝은 반점을 얹는다. soft-light 와 overlay 도 재 봤는데 거의 검은
+     * 바탕에서는 둘 다 눌려서, 농도를 세 배로 올려도 진폭이 6/255 까지밖에
+     * 안 올라갔다(multiply 0.085 의 라이트가 10/255 다).
+     *
+     * 대신 screen 은 검정을 들어 올린다. 바탕이 #1a1511 에서 대략 #1d1915
+     * 정도로 뜬다. 순검정을 피하자는 원래 방향과 어긋나지 않아 그대로 둔다.
+     * 농도를 더 올리면 뿌옇게 들뜨므로 0.05 에서 멈춘다.
+     *
+     * 비네트는 가장자리를 미세하게 어둡게 해 톤을 고르지 않게 만든다.
+     * "종이답다" 는 인상은 입자보다 이쪽이 더 많이 만든다. 다크에서는
+     * 램프 아래 책 쪽으로 가라고 조금 더 세게 준다.
+     */
+    --light-texture-opacity: 0.085;
+    --light-texture-blend: multiply;
+    --light-vignette: rgba(92, 68, 38, 0.07);
+
+    --dark-texture-opacity: 0.05;
+    --dark-texture-blend: screen;
+    --dark-vignette: rgba(0, 0, 0, 0.3);
 }
 
 /*
@@ -86,6 +112,9 @@
     --accent: var(--light-accent);
     --accent-soft: var(--light-accent-soft);
     --danger: var(--light-danger);
+    --texture-opacity: var(--light-texture-opacity);
+    --texture-blend: var(--light-texture-blend);
+    --vignette: var(--light-vignette);
 }
 
 /* 스크립트가 막힌 환경을 위한 바탕. 스크립트가 돌면 :root 에 data-theme 이
@@ -102,6 +131,9 @@
         --accent: var(--dark-accent);
         --accent-soft: var(--dark-accent-soft);
         --danger: var(--dark-danger);
+        --texture-opacity: var(--dark-texture-opacity);
+        --texture-blend: var(--dark-texture-blend);
+        --vignette: var(--dark-vignette);
     }
 }
 
@@ -116,17 +148,93 @@
     --accent: var(--dark-accent);
     --accent-soft: var(--dark-accent-soft);
     --danger: var(--dark-danger);
+    --texture-opacity: var(--dark-texture-opacity);
+    --texture-blend: var(--dark-texture-blend);
+    --vignette: var(--dark-vignette);
 }
 
 * { box-sizing: border-box; }
 
+/* 바탕색을 body 가 아니라 html 에 둔다.
+   질감 두 겹이 body::before / ::after 로 z-index: -1 에 깔리는데, body 에
+   배경이 있으면 그 뒤로 숨는다. 색을 html 로 올리면 캔버스에 칠해져
+   가장 아래가 되고, 질감은 그 위, 글은 그 위가 된다. */
+html { background-color: var(--bg); }
+
 body {
     margin: 0;
-    background: var(--bg);
     color: var(--text);
     font-family: var(--sans);
     line-height: 1.7;
     -webkit-font-smoothing: antialiased;
+}
+
+/*
+ * 질감 두 겹.
+ *
+ * 둘 다 position: fixed 다. 스크롤을 따라 다시 그리지 않으므로 싸고,
+ * 결이 글을 따라 움직이지 않는 것은 실제로 거의 눈에 띄지 않는다.
+ *
+ * pointer-events: none 이 빠지면 화면 전체를 덮은 투명한 판이 생겨
+ * 링크도 버튼도 눌리지 않는다. 이 줄은 장식이 아니다.
+ *
+ * 표면(카드, 상자)마다 따로 깔지 않는 이유는, 작은 상자에서는 타일의
+ * 반복 주기가 그대로 드러나고 모서리마다 이음매가 보이기 때문이다.
+ * 화면 전체에 한 겹이어야 한다.
+ */
+body::before,
+body::after {
+    content: "";
+    position: fixed;
+    inset: 0;
+    z-index: -1;
+    pointer-events: none;
+}
+
+/*
+ * 입자.
+ *
+ * 종이 스캔 이미지를 쓰지 않고 feTurbulence 로 브라우저가 직접 그린다.
+ * 파일이 없으니 용량도 없고, 무엇보다 출처를 따질 일이 없다. 악곡은
+ * 퍼블릭 도메인만 쓴다면서 배경 이미지 출처가 애매하면 앞뒤가 안 맞는다.
+ *
+ * stitchTiles="stitch" 가 핵심이다. 이게 없으면 타일 경계에서 결이
+ * 끊겨 180px 격자가 눈에 보인다.
+ *
+ * feColorMatrix saturate=0 도 필요하다. feTurbulence 는 R·G·B 를 각각
+ * 따로 흔들어서 그냥 쓰면 컬러 노이즈, 그러니까 TV 모래폭풍이 된다.
+ *
+ * baseFrequency 가 입자 굵기다. 처음에 0.8/4옥타브로 뒀는데 거의 1픽셀
+ * 노이즈라 보는 거리에서 평평해져 버렸다 — 통계로는 분명히 있는데 눈에는
+ * 없었다. 0.35/2옥타브가 종이의 결처럼 읽힌다. 더 낮추면(0.14 쯤) 결이
+ * 아니라 얼룩으로 보이고, 타일 주기도 눈에 띄기 시작한다.
+ */
+body::before {
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.35' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='180' height='180' filter='url(%23n)'/%3E%3C/svg%3E");
+    background-size: 180px 180px;
+    opacity: var(--texture-opacity);
+    mix-blend-mode: var(--texture-blend);
+}
+
+/* 비네트. 가운데는 그대로 두고 가장자리만 미세하게 내린다.
+   균일한 색면은 화면처럼 보이고, 톤이 고르지 않으면 물체처럼 보인다. */
+body::after {
+    background: radial-gradient(ellipse 110% 85% at 50% 42%,
+                                transparent 45%, var(--vignette) 100%);
+}
+
+/*
+ * 질감을 꺼야 하는 경우.
+ *
+ * 대비를 높여 달라고 설정한 사람에게 바탕에 입자를 까는 것은 정반대다.
+ * 투명 효과를 줄여 달라는 설정도 같은 뜻으로 받는다.
+ * 인쇄에서는 잉크만 낭비한다.
+ */
+@media print,
+       (prefers-contrast: more),
+       (prefers-reduced-transparency: reduce) {
+    body::before,
+    body::after { display: none; }
 }
 
 a { color: var(--accent); text-decoration: none; }
