@@ -33,31 +33,89 @@
  *
  * 모든 조합이 WCAG AA(4.5:1)를 넘는다. 가장 빠듯한 것이 muted 와 accent 로
  * 라이트에서 각각 5.39, 5.66 이다.
+ *
+ * 두 벌의 색값은 여기 한 번만 적는다. 아래쪽은 그 중 어느 벌을 쓸지
+ * 고르기만 한다. 라이트/다크를 각각 따로 적어 두면 한쪽만 고치고
+ * 다른 쪽을 잊는 일이 반드시 생긴다.
  */
 :root {
-    --bg: #f7f2e8;          /* 세월 든 종이 */
-    --surface: #fffdf8;
-    --text: #2e2419;        /* 검정이 아니라 갈색 잉크 */
-    --text-muted: #6e6152;
-    --border: #e0d6c4;
-    --accent: #875427;
-    --accent-soft: #efe6d6;
-    --danger: #9d3b26;
+    --light-bg: #f7f2e8;          /* 세월 든 종이 */
+    --light-surface: #fffdf8;
+    --light-text: #2e2419;        /* 검정이 아니라 갈색 잉크 */
+    --light-text-muted: #6e6152;
+    --light-border: #e0d6c4;
+    --light-accent: #875427;
+    --light-accent-soft: #efe6d6;
+    --light-danger: #9d3b26;
+
+    /* 밤에 램프 아래 놓인 낡은 책 쪽으로. 순검정으로 가면 낮 화면의
+       따뜻함이 밤에 사라진다. */
+    --dark-bg: #1a1511;
+    --dark-surface: #221c16;
+    --dark-text: #e8ddc9;
+    --dark-text-muted: #a2927c;
+    --dark-border: #383025;
+    --dark-accent: #d8a866;
+    --dark-accent-soft: #2b2419;
+    --dark-danger: #e0806e;
 }
 
-/* 밤에 램프 아래 놓인 낡은 책 쪽으로. 이전 다크는 거의 순검정이라
-   낮 화면의 따뜻함이 밤에 사라졌다. */
+/*
+ * 어느 벌을 쓸지.
+ *
+ * 세 가지 경우가 있다.
+ *   data-theme 없음        — 운영체제 설정을 따른다(아래 @media)
+ *   data-theme="light"     — 사용자가 밝은 쪽을 골랐다
+ *   data-theme="dark"      — 사용자가 어두운 쪽을 골랐다
+ *
+ * data-theme 은 layout.html 의 머리말 스크립트가 그려지기 전에 붙인다.
+ * 본문이 뜬 뒤에 붙이면 밝은 화면이 한 번 번쩍이고 어두워진다.
+ *
+ * color-scheme 은 스크롤바·입력창·select 드롭다운처럼 브라우저가 직접
+ * 그리는 부분을 같이 바꾼다. 이게 없으면 본문만 어둡고 스크롤바는 희다.
+ */
+:root,
+:root[data-theme="light"] {
+    color-scheme: light;
+
+    --bg: var(--light-bg);
+    --surface: var(--light-surface);
+    --text: var(--light-text);
+    --text-muted: var(--light-text-muted);
+    --border: var(--light-border);
+    --accent: var(--light-accent);
+    --accent-soft: var(--light-accent-soft);
+    --danger: var(--light-danger);
+}
+
+/* 스크립트가 막힌 환경을 위한 바탕. 스크립트가 돌면 :root 에 data-theme 이
+   붙어 아래 규칙으로 넘어간다. */
 @media (prefers-color-scheme: dark) {
-    :root {
-        --bg: #1a1511;
-        --surface: #221c16;
-        --text: #e8ddc9;
-        --text-muted: #a2927c;
-        --border: #383025;
-        --accent: #d8a866;
-        --accent-soft: #2b2419;
-        --danger: #e0806e;
+    :root:not([data-theme]) {
+        color-scheme: dark;
+
+        --bg: var(--dark-bg);
+        --surface: var(--dark-surface);
+        --text: var(--dark-text);
+        --text-muted: var(--dark-text-muted);
+        --border: var(--dark-border);
+        --accent: var(--dark-accent);
+        --accent-soft: var(--dark-accent-soft);
+        --danger: var(--dark-danger);
     }
+}
+
+:root[data-theme="dark"] {
+    color-scheme: dark;
+
+    --bg: var(--dark-bg);
+    --surface: var(--dark-surface);
+    --text: var(--dark-text);
+    --text-muted: var(--dark-text-muted);
+    --border: var(--dark-border);
+    --accent: var(--dark-accent);
+    --accent-soft: var(--dark-accent-soft);
+    --danger: var(--dark-danger);
 }
 
 * { box-sizing: border-box; }
@@ -101,7 +159,10 @@ a:hover { text-decoration: underline; }
 
 .site-header .container {
     display: flex;
-    align-items: baseline;
+    /* 토글 버튼이 들어오기 전에는 baseline 이었다. 글자만 있을 때는 그쪽이
+       맞지만, 글자가 없는 30px 버튼이 끼면 기준선이 버튼 아래끝으로 잡혀
+       줄이 어긋난다. */
+    align-items: center;
     justify-content: space-between;
     gap: 16px;
 }
@@ -117,8 +178,77 @@ a:hover { text-decoration: underline; }
     color: var(--text);
 }
 
-.site-nav { display: flex; gap: 18px; font-size: 14px; letter-spacing: 0.04em; }
+.site-nav { display: flex; align-items: center; gap: 18px; font-size: 14px; letter-spacing: 0.04em; }
 .site-nav a { color: var(--text-muted); }
+
+/* ---------- 라이트/다크 토글 ---------- */
+
+/* 스크립트가 없으면 눌러도 아무 일이 없다. 그래서 기본은 숨기고,
+   머리말 스크립트가 .has-js 를 붙였을 때만 보인다. */
+.theme-toggle { display: none; }
+
+.has-js .theme-toggle {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 30px;
+    height: 30px;
+    padding: 0;
+    margin-left: 4px;
+    border: 1px solid var(--border);
+    border-radius: 2px;
+    background: transparent;
+    color: var(--text-muted);
+    cursor: pointer;
+}
+
+.theme-toggle:hover { color: var(--text); border-color: var(--accent); }
+.theme-toggle:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+
+/* 아이콘은 글리프가 아니라 CSS 로 그린다. ☾ ☀ 같은 문자는 EB Garamond 에도
+   나눔명조에도 없어서 엉뚱한 서체로 떨어진다(❦ 에서 이미 겪었다).
+   상자 크기는 16px 로 고정하고 안에서만 모양을 바꿔, 눌러도 옆의 링크가
+   밀리지 않게 한다. */
+.theme-icon {
+    position: relative;
+    display: block;
+    width: 16px;
+    height: 16px;
+}
+
+.theme-icon::before {
+    content: "";
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    border-radius: 50%;
+}
+
+/* 지금 밝다 → 누르면 어두워진다. 초승달.
+   투명한 원에 inset 그림자를 주면 border-radius 에 잘려 초승달이 된다. */
+.theme-toggle[data-mode="light"] .theme-icon::before {
+    width: 14px;
+    height: 14px;
+    box-shadow: inset -4px -1.5px 0 0 currentColor;
+}
+
+/* 지금 어둡다 → 누르면 밝아진다. 해.
+   가운데 원 하나에 box-shadow 로 빛살 여덟을 찍는다. */
+.theme-toggle[data-mode="dark"] .theme-icon::before {
+    width: 8px;
+    height: 8px;
+    background: currentColor;
+    box-shadow:
+        0 -8px 0 -2.5px currentColor,
+        0 8px 0 -2.5px currentColor,
+        -8px 0 0 -2.5px currentColor,
+        8px 0 0 -2.5px currentColor,
+        5.5px 5.5px 0 -3px currentColor,
+        -5.5px -5.5px 0 -3px currentColor,
+        5.5px -5.5px 0 -3px currentColor,
+        -5.5px 5.5px 0 -3px currentColor;
+}
 
 .site-footer {
     margin-top: 72px;
@@ -641,6 +771,11 @@ h1, h2, h3 {
     font-size: 18px;
     line-height: 1.85;
     max-width: 36em;
+    /* 36em 단을 컨테이너 왼쪽에 붙여 두니 오른쪽만 비어 한쪽으로 쏠려 보였다.
+       좌우를 auto 로 두면 남는 폭이 양쪽에 반씩 간다. 제목과 플레이어는
+       컨테이너 폭 그대로라 본문보다 조금씩 넓게 걸친다. */
+    margin-left: auto;
+    margin-right: auto;
 }
 
 .story p { margin: 0 0 1.2em; }

@@ -21,6 +21,42 @@
           href="https://fonts.googleapis.com/css2?family=EB+Garamond:ital,wght@0,400;0,500;0,600;1,400&family=Nanum+Myeongjo:wght@400;700;800&display=swap">
 
     <link rel="stylesheet" th:href="@{/css/app.css}">
+
+    <!--
+      테마를 그려지기 전에 정한다.
+
+      이 스크립트는 반드시 <head> 안에서, 외부 파일이 아니라 인라인으로
+      돌아야 한다. 본문이 뜬 뒤에 data-theme 을 붙이면 어두운 화면을 고른
+      사람에게 밝은 화면이 한 번 번쩍이고 어두워진다(FOUC).
+
+      has-js 는 토글 버튼을 보이게 하는 열쇠다. 스크립트가 막힌 환경에서는
+      눌러도 아무 일이 없는 버튼이 뜨지 않는다.
+    -->
+    <script th:inline="none">
+        (function () {
+            var el = document.documentElement;
+            el.classList.add('has-js');
+            var stored = null;
+            try {
+                stored = localStorage.getItem('moirai-theme');
+            } catch (e) {
+                // 사생활 보호 모드나 쿠키 차단에서는 localStorage 접근 자체가 던진다.
+                // 그 경우 운영체제 설정을 따른다.
+            }
+            if (stored !== 'light' && stored !== 'dark') {
+                stored = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+                el.setAttribute('data-theme-source', 'system');
+            } else {
+                el.setAttribute('data-theme-source', 'user');
+            }
+            el.setAttribute('data-theme', stored);
+        })();
+    </script>
+
+    <!-- 버튼을 누르는 쪽. defer 라 문서를 다 읽은 뒤에 돈다.
+         head 조각에 두는 이유는 모든 화면이 이 조각을 쓰기 때문이다.
+         body 끝에 두면 템플릿마다 따로 불러 줘야 한다. -->
+    <script th:src="@{/js/theme.js}" defer></script>
 </head>
 <body>
 
@@ -32,6 +68,13 @@
             <a th:href="@{/composers}">작곡가</a>
             <a th:href="@{/listen}">이어 듣기</a>
             <a th:href="@{/admin}" sec:authorize="isAuthenticated()">관리</a>
+
+            <!-- 아이콘은 "지금 상태" 가 아니라 "누르면 가는 곳" 을 그린다.
+                 밝을 때 초승달, 어두울 때 해. data-mode 와 라벨은 theme.js 가 채운다. -->
+            <button type="button" class="theme-toggle" id="theme-toggle"
+                    data-mode="light" aria-label="화면 밝기 바꾸기" title="화면 밝기 바꾸기">
+                <span class="theme-icon" aria-hidden="true"></span>
+            </button>
         </nav>
     </div>
 </header>
