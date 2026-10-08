@@ -2,7 +2,8 @@
 <html xmlns:th="http://www.thymeleaf.org"
       xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
 <head th:replace="~{layout :: head('곡')}"></head>
-<body>
+<!-- 첫 요소가 글이 아니라 조작 버튼인 화면. 헤더와의 간격을 줄인다. -->
+<body class="toolbar-top">
 <header th:replace="~{layout :: header}"></header>
 
 <!-- 격자형일 때 폭을 넓히기 위해 JS 가 여기에도 data-view 를 붙인다.
@@ -20,10 +21,11 @@
       선택은 localStorage 에 저장한다. 보는 사람마다 다른 취향이고 서버가
       알 필요가 없는 값이다.
     -->
-    <div class="view-toggle" th:if="${!#lists.isEmpty(works)}">
-        <button type="button" data-view-set="list" aria-pressed="true">목록형</button>
-        <button type="button" data-view-set="grid" aria-pressed="false">격자형</button>
-    </div>
+    <!-- th:if 를 th:replace 와 같은 태그에 달면 안 된다. th:replace 가 먼저
+         실행되어(우선순위 100 대 300) 조건이 무시된다. th:block 으로 감싼다. -->
+    <th:block th:if="${!#lists.isEmpty(works)}">
+        <div th:replace="~{fragments/view-toggle :: toggle}"></div>
+    </th:block>
 
     <!-- ul 이 파싱되기 전에 저장된 선택을 적용해 깜빡임을 막는다. -->
     <script th:src="@{/js/view-toggle.js}"></script>

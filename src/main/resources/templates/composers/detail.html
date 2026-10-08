@@ -28,10 +28,9 @@
               위에 작곡가 소개 글이 있어서 1120px 로 벌리면 줄 길이가 너무 길어진다.
               작곡가 한 명당 곡이 서너 개라 760px 안의 2열로 충분하다.
             -->
-            <div class="view-toggle" th:if="${!#lists.isEmpty(works)}">
-                <button type="button" data-view-set="list" aria-pressed="true">목록형</button>
-                <button type="button" data-view-set="grid" aria-pressed="false">격자형</button>
-            </div>
+            <th:block th:if="${!#lists.isEmpty(works)}">
+                <div th:replace="~{fragments/view-toggle :: toggle}"></div>
+            </th:block>
         </div>
 
         <script th:src="@{/js/view-toggle.js}"></script>
