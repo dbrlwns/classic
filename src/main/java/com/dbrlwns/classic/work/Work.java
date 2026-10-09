@@ -114,6 +114,43 @@ public class Work {
         return "https://i.ytimg.com/vi/" + recording.getYoutubeId() + "/mqdefault.jpg";
     }
 
+    /*
+     * 관리 대시보드의 "할 일" 표시. 곡 하나가 공개될 준비가 되었는지를
+     * 세 조각으로 나눠 본다.
+     *
+     * 공개 화면이 실제로 어떻게 보이는지와 뜻을 맞춘다. 음원이 아예 없는
+     * 경우와, 있지만 전부 재생 불가로 내려 둔 경우는 방문자에게 똑같이
+     * "재생 가능한 음원이 아직 없습니다" 로 보인다. 그래서 둘을 한 상태로 묶는다.
+     *
+     * 빈 문자열과 공백만 있는 문자열도 없는 것으로 친다. 폼에서 지우면
+     * null 이 아니라 "" 가 들어오기 때문이다.
+     */
+    @Transient
+    public boolean isMissingRecording() {
+        return pickPlayableRecording().isEmpty();
+    }
+
+    @Transient
+    public boolean isMissingStory() {
+        return story == null || story.isBlank();
+    }
+
+    @Transient
+    public boolean isMissingSummary() {
+        return summary == null || summary.isBlank();
+    }
+
+    /** 대시보드에서 거르기 위한 표식. 빠진 것이 없으면 빈 문자열이다. */
+    @Transient
+    public String getGapFlags() {
+        StringBuilder flags = new StringBuilder();
+        if (isMissingRecording()) { flags.append("no-recording "); }
+        if (isMissingStory()) { flags.append("no-story "); }
+        if (isMissingSummary()) { flags.append("no-summary "); }
+        if (!published) { flags.append("draft "); }
+        return flags.toString().trim();
+    }
+
     public void addRecording(Recording recording) {
         recordings.add(recording);
         recording.setWork(this);

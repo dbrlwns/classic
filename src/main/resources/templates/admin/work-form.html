@@ -9,7 +9,7 @@
 
     <h1 style="font-size:24px;" th:text="${form.id == null} ? '곡 추가' : '곡 수정'">곡</h1>
 
-    <form method="post" th:action="@{/admin/works/save}" th:object="${form}">
+    <form method="post" th:action="@{/admin/works/save}" th:object="${form}" data-warn-unsaved>
         <input type="hidden" th:field="*{id}">
 
         <div class="field">
@@ -346,5 +346,6 @@
     })();
     /*]]>*/
 </script>
+<script th:src="@{/js/unsaved.js}" defer></script>
 </body>
 </html>

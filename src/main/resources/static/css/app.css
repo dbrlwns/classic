@@ -993,6 +993,92 @@ h1, h2, h3 {
     font-size: 14px;
 }
 
+/* ---------- 관리 대시보드 ---------- */
+
+.admin-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    flex-wrap: wrap;
+}
+
+.admin-head h1 { font-size: 24px; margin: 0; }
+.admin-count { color: var(--text-muted); font-size: 15px; font-weight: 400; }
+.admin-sub { color: var(--text-muted); font-size: 14px; margin: 6px 0 0; }
+.row-sub { color: var(--text-muted); font-size: 12px; }
+
+/* 거르기 줄. 표 바로 위에 붙여 둘이 한 덩어리로 읽히게 한다. */
+.work-filter {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    flex-wrap: wrap;
+    margin: 24px 0 14px;
+}
+
+.work-filter input[type=search] {
+    width: auto;
+    min-width: 240px;
+    flex: 0 1 300px;
+    padding: 7px 10px;
+    font-size: 13px;
+}
+
+.filter-chips { display: flex; gap: 6px; flex-wrap: wrap; }
+
+.filter-chips button {
+    display: inline-flex;
+    align-items: baseline;
+    gap: 6px;
+    padding: 6px 11px;
+    font: inherit;
+    font-size: 13px;
+    color: var(--text-muted);
+    background: transparent;
+    border: 1px solid var(--border);
+    border-radius: 2px;
+    cursor: pointer;
+}
+
+.filter-chips button span {
+    font-size: 11px;
+    font-variant-numeric: tabular-nums;
+    opacity: 0.75;
+}
+
+.filter-chips button:hover:not(:disabled) { color: var(--text); }
+
+.filter-chips button[aria-pressed="true"] {
+    color: var(--accent);
+    background: var(--accent-soft);
+    border-color: var(--accent);
+}
+
+/* 해당하는 곡이 없는 칩. 눌러 봐야 빈 표가 나오므로 비활성으로 둔다. */
+.filter-chips button:disabled { opacity: 0.4; cursor: default; }
+
+.filter-result {
+    margin: 0;
+    font-size: 13px;
+    color: var(--text-muted);
+    font-variant-numeric: tabular-nums;
+}
+
+/*
+ * "할 일" 칸. 빠진 것만 적힌다.
+ *
+ * 공개/초안 뱃지와 생김새를 갈라 놓는다. 뱃지는 테두리가 있는 라벨이고
+ * 이쪽은 테두리 없는 글씨다. 한 행에 뱃지가 넷씩 늘어서면 표가 읽히지 않는다.
+ */
+.gap {
+    display: inline-block;
+    margin-right: 8px;
+    font-size: 12px;
+    color: var(--danger);
+    white-space: nowrap;
+}
+
 /* 되돌릴 수 없는 조작. 저장 영역에서 떼어 놓고 선으로 끊어, 저장하려다
    잘못 누르는 거리를 벌린다. */
 .danger-zone {
