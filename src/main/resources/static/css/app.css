@@ -942,6 +942,37 @@ h1, h2, h3 {
     opacity: 0.55;
 }
 
+/* ---------- 오류 화면 ---------- */
+
+/* 숫자를 크게 띄우지 않는다. 404 를 거대하게 박는 건 현대 웹의 관습이고,
+   이 사이트의 언어는 책에 가깝다. 작게 쓰고 자간을 벌려 머리말처럼 둔다. */
+.error-page {
+    max-width: 36em;
+    margin: 72px auto 96px;
+}
+
+.error-code {
+    margin: 0 0 14px;
+    font-family: var(--serif);
+    font-size: 14px;
+    letter-spacing: 0.22em;
+    color: var(--text-muted);
+}
+
+.error-page h1 {
+    margin: 0 0 16px;
+    font-size: 28px;
+}
+
+.error-lead {
+    margin: 0 0 32px;
+    color: var(--text-muted);
+    font-size: 16px;
+    line-height: 1.8;
+}
+
+.error-actions { display: flex; gap: 10px; flex-wrap: wrap; margin: 0; }
+
 .empty {
     padding: 48px 0;
     text-align: center;

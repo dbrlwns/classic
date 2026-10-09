@@ -10,6 +10,42 @@
     <meta th:if="${noindex}" name="robots" content="noindex">
 
     <!--
+      공유 카드와 검색 결과.
+
+      og:image 는 아직 없다. 그림 없는 글자 카드가 되지만, 주소만 덩그러니
+      나가는 것보다는 "무슨 글인지" 가 전달된다. 이미지는 도메인이 정해진 뒤
+      og:image 한 줄과 PNG 한 장을 더하면 되고, 여기를 고칠 일은 없다.
+
+      description 은 OG 와 별개로 검색 결과 요약에 쓰인다.
+      metaDescription 은 MetaAdvice 가 기본값을 넣고 각 컨트롤러가 덮어쓴다.
+
+      og:url 은 설정값이 아니라 지금 들어온 요청에서 뽑는다(MetaAdvice).
+    -->
+    <meta name="description" th:content="${metaDescription}">
+
+    <meta property="og:site_name" th:content="${siteName}">
+    <meta property="og:type" th:content="${ogType} ?: 'website'">
+    <meta property="og:title" th:content="${ogTitle} ?: ${title}">
+    <meta property="og:description" th:content="${metaDescription}">
+    <meta property="og:url" th:if="${ogUrl}" th:content="${ogUrl}">
+    <meta property="og:locale" content="ko_KR">
+
+    <!-- 트위터는 OG 를 읽지만 카드 종류는 자기 태그로만 정한다.
+         이게 없으면 글자 카드조차 안 뜨는 경우가 있다. -->
+    <meta name="twitter:card" content="summary">
+
+    <!--
+      파비콘.
+
+      SVG 를 먼저 둔다. 한 파일로 모든 크기를 감당하고 다크 모드도 안에서
+      처리한다. SVG 를 못 읽는 브라우저는 그 아래 PNG 로 떨어진다.
+      애플 기기가 홈 화면에 쓰는 아이콘만 크기가 달라 따로 둔다.
+    -->
+    <link rel="icon" type="image/svg+xml" th:href="@{/favicon.svg}">
+    <link rel="icon" type="image/png" sizes="32x32" th:href="@{/favicon-32.png}">
+    <link rel="apple-touch-icon" th:href="@{/apple-touch-icon.png}">
+
+    <!--
       본문 서체. 라틴은 EB Garamond(16세기 가라몽 복각), 한글은 나눔명조.
 
       preconnect 두 줄은 폰트 파일을 받을 도메인에 미리 연결을 열어 둔다.

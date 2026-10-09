@@ -1,6 +1,7 @@
 package com.dbrlwns.classic.composer;
 
 import com.dbrlwns.classic.support.MarkdownRenderer;
+import com.dbrlwns.classic.support.MetaText;
 import com.dbrlwns.classic.work.WorkRepository;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Controller;
@@ -38,6 +39,12 @@ public class ComposerController {
         model.addAttribute("composer", composer);
         model.addAttribute("bioHtml", markdownRenderer.toHtml(composer.getBio()));
         model.addAttribute("works", workRepository.findPublishedByComposerSlug(slug));
+
+        model.addAttribute("ogType", "profile");
+        String description = MetaText.summarize(composer.getBio());
+        if (description != null) {
+            model.addAttribute("metaDescription", description);
+        }
         return "composers/detail";
     }
 }

@@ -2,6 +2,7 @@ package com.dbrlwns.classic.work;
 
 import com.dbrlwns.classic.recording.Recording;
 import com.dbrlwns.classic.support.MarkdownRenderer;
+import com.dbrlwns.classic.support.MetaText;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -69,6 +70,18 @@ public class WorkController {
         // layout 의 head 조각이 이 값을 보고 robots 메타를 넣는다.
         model.addAttribute("noindex", draft);
         model.addAttribute("storyHtml", markdownRenderer.toHtml(work.getStory()));
+
+        // 공유 카드. 한 줄 소개가 있으면 그걸 쓰고, 없으면 스토리 첫머리를 자른다.
+        // 둘 다 없으면 MetaAdvice 의 사이트 기본 설명이 그대로 남는다.
+        model.addAttribute("ogType", "article");
+        model.addAttribute("ogTitle", work.getTitle() + " · " + work.getComposer().getName());
+        String description = MetaText.summarize(work.getSummary());
+        if (description == null) {
+            description = MetaText.summarize(work.getStory());
+        }
+        if (description != null) {
+            model.addAttribute("metaDescription", description);
+        }
         model.addAttribute("recording", recording.orElse(null));
         model.addAttribute("siblings", siblings);
         return "works/detail";

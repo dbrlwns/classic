@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<!--
+  404 가 아닌 나머지 전부를 받는다. 스프링 부트는 error/<상태코드> 를 먼저 찾고,
+  없으면 error 를 쓴다.
+
+  status 말고는 아무것도 보여주지 않는다. message 와 trace 는 기본 설정에서
+  꺼져 있고(server.error.include-message=never), 켜면 내부 구조가 그대로
+  밖으로 나간다. 사용자에게도 쓸모가 없다.
+-->
+<head th:replace="~{layout :: head('오류')}"></head>
+<body>
+<header th:replace="~{layout :: header}"></header>
+
+<main class="container">
+    <div class="error-page">
+        <p class="error-code" th:text="${status} ?: '오류'">오류</p>
+        <h1>문제가 생겼습니다.</h1>
+        <p class="error-lead">
+            잠시 뒤에 다시 시도해 보세요. 계속 같은 화면이 나오면 주소를 확인해 주세요.
+        </p>
+
+        <p class="error-actions">
+            <a class="btn" th:href="@{/}">곡 목록으로</a>
+        </p>
+    </div>
+</main>
+
+<footer th:replace="~{layout :: footer}"></footer>
+</body>
+</html>

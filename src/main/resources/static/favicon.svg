@@ -1,0 +1,23 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" role="img" aria-label="Moirai">
+  <!--
+    모이라이는 실을 잣고(클로토), 길이를 재고(라케시스), 끊는(아트로포스)
+    세 여신이다. 길이가 다른 실 세 가닥으로 그렸다.
+
+    16px 로 줄어드는 그림이라 획이 셋을 넘으면 뭉친다. 가운데 선을 가장 길게
+    둬서 비대칭을 만들고, 오른쪽 가닥은 끊긴 자리를 짧게 남겼다.
+
+    색을 CSS 변수가 아니라 직접 적는다. 파비콘은 페이지 바깥에서 그려지므로
+    사이트 CSS 가 닿지 않는다. 대신 prefers-color-scheme 은 SVG 안에서 먹는다.
+  -->
+  <style>
+    .thread { stroke: #875427; stroke-width: 3.4; stroke-linecap: round; }
+    @media (prefers-color-scheme: dark) {
+      .thread { stroke: #d8a866; }
+    }
+  </style>
+  <g class="thread" fill="none">
+    <line x1="7"  y1="5"  x2="7"  y2="24"/>
+    <line x1="16" y1="5"  x2="16" y2="27"/>
+    <line x1="25" y1="5"  x2="25" y2="18"/>
+  </g>
+</svg>
