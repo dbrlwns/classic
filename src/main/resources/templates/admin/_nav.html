@@ -6,9 +6,13 @@
     <a th:href="@{/admin/works/new}">곡 추가</a>
     <a th:href="@{/admin/composers}">작곡가</a>
     <a th:href="@{/}">사이트 보기</a>
-    <form method="post" th:action="@{/logout}" style="margin-left:auto;">
-        <button class="btn secondary small" type="submit">로그아웃</button>
-    </form>
+    <!-- 여기부터 오른쪽. 공개 화면과 같은 토글을 같은 조각으로 쓴다. -->
+    <div class="admin-nav-end">
+        <button th:replace="~{fragments/theme-toggle :: toggle}"></button>
+        <form method="post" th:action="@{/logout}">
+            <button class="btn secondary small" type="submit">로그아웃</button>
+        </form>
+    </div>
 </nav>
 </body>
 </html>

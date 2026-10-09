@@ -955,11 +955,23 @@ h1, h2, h3 {
 
 .admin-nav {
     display: flex;
+    /* 글자 링크와 글자 없는 30px 버튼이 한 줄에 섞인다.
+       baseline 으로 두면 버튼의 기준선이 아래끝으로 잡혀 줄이 어긋난다. */
+    align-items: center;
     gap: 16px;
     font-size: 14px;
     margin-bottom: 28px;
     padding-bottom: 14px;
     border-bottom: 1px solid var(--border);
+}
+
+/* 오른쪽 끝에 붙는 묶음. margin-left: auto 를 로그아웃 폼에 직접 주면
+   토글이 그 왼쪽이 아니라 링크들 쪽에 붙는다. */
+.admin-nav-end {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-left: auto;
 }
 
 /* 초안 미리보기 띠.

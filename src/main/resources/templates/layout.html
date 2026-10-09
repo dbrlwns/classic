@@ -75,10 +75,7 @@
 
             <!-- 아이콘은 "지금 상태" 가 아니라 "누르면 가는 곳" 을 그린다.
                  밝을 때 초승달, 어두울 때 해. data-mode 와 라벨은 theme.js 가 채운다. -->
-            <button type="button" class="theme-toggle" id="theme-toggle"
-                    data-mode="light" aria-label="화면 밝기 바꾸기" title="화면 밝기 바꾸기">
-                <span class="theme-icon" aria-hidden="true"></span>
-            </button>
+            <button th:replace="~{fragments/theme-toggle :: toggle}"></button>
         </nav>
     </div>
 </header>

@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<body>
+
+<!--
+  라이트/다크 토글 버튼.
+
+  공개 화면의 네비(layout :: header)와 관리 화면의 네비(admin/_nav) 두 곳에서
+  쓴다. 양쪽에 같은 마크업을 적어 두면 한쪽만 고치는 날이 온다.
+
+  id 를 쓰므로 한 화면에 하나만 있어야 한다. theme.js 가 이 id 로 버튼을
+  찾아 아이콘과 라벨을 채운다.
+
+  아이콘은 인라인 CSS 로 그린다(.theme-icon). 글리프를 쓰면 EB Garamond 에도
+  나눔명조에도 없어 엉뚱한 서체로 떨어진다. 스크립트가 막힌 환경에서는
+  .has-js 가 없어 버튼 자체가 숨는다 — 눌러도 아무 일이 없는 버튼을
+  두지 않기 위해서다.
+-->
+<button th:fragment="toggle" type="button" class="theme-toggle" id="theme-toggle"
+        data-mode="light" aria-label="화면 밝기 바꾸기" title="화면 밝기 바꾸기">
+    <span class="theme-icon" aria-hidden="true"></span>
+</button>
+
+</body>
+</html>

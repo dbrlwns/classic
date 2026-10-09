@@ -23,6 +23,21 @@ spring:
   thymeleaf:
     cache: true
 
+# 관리자 계정.
+#
+# 기본값을 일부러 주지 않는다. application.yml 쪽은 ${ADMIN_PASSWORD:admin} 이라
+# 환경변수를 깜빡해도 조용히 admin/admin 으로 뜬다. 로컬에서는 그게 편하지만
+# 운영에서 같은 일이 벌어지면 관리 화면이 통째로 열린다.
+#
+# 여기서는 기본값 없이 두어, 환경변수가 없으면 부팅 자체가 실패하게 한다.
+# 비밀번호가 틀린 채로 뜨는 것보다 아예 안 뜨는 쪽이 낫다.
+#
+# 값은 여기 적지 않는다. 이 파일은 깃에 들어간다.
+app:
+  admin:
+    username: ${ADMIN_USERNAME}
+    password: ${ADMIN_PASSWORD}
+
 logging:
   level:
     com.dbrlwns.classic: INFO
