@@ -24,8 +24,9 @@
 
         <div class="field">
             <label for="slug">슬러그</label>
-            <input type="text" id="slug" th:field="*{slug}" placeholder="debussy">
-            <div class="hint">URL 에 쓰입니다. 영문 소문자와 하이픈만 쓰세요.</div>
+            <input type="text" id="slug" th:field="*{slug}" placeholder="debussy"
+                   pattern="[a-z0-9]+(-[a-z0-9]+)*" title="영문 소문자, 숫자, 하이픈만 쓸 수 있습니다 (예: clair-de-lune)">
+            <div class="hint">URL 에 쓰입니다. 영문 소문자, 숫자, 하이픈만.</div>
             <div class="error" th:if="${#fields.hasErrors('slug')}" th:errors="*{slug}"></div>
         </div>
 

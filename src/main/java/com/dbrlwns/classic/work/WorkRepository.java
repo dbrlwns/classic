@@ -23,6 +23,13 @@ public interface WorkRepository extends JpaRepository<Work, Long> {
     boolean existsBySlug(String slug);
 
     /**
+     * 수정할 때 쓰는 중복 검사. 자기 자신은 빼고 본다.
+     * slug 에 unique 제약이 걸려 있어서, 이 검사 없이 남의 슬러그로 바꾸면
+     * 화면에 오류가 뜨는 게 아니라 제약 위반으로 500 이 난다.
+     */
+    boolean existsBySlugAndIdNot(String slug, Long id);
+
+    /**
      * 메인 목록. 작곡 연도순으로 준다.
      *
      * 등록순이었을 때는 지금 우연히 바흐-모차르트-베토벤 순으로 보일 뿐,

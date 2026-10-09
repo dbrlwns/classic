@@ -37,8 +37,10 @@
                 <span class="badge" th:unless="${work.published}">초안</span>
             </td>
             <td>
-                <a class="btn secondary small" th:if="${work.published}"
-                   th:href="@{'/works/' + ${work.slug}}" target="_blank">보기</a>
+                <!-- 초안도 열린다(관리자 한정). 다만 라벨을 갈라 놓아야
+                     지금 보는 것이 공개된 페이지인지 아닌지 헷갈리지 않는다. -->
+                <a class="btn secondary small" th:href="@{'/works/' + ${work.slug}}" target="_blank"
+                   th:text="${work.published} ? '보기' : '미리보기'">보기</a>
             </td>
         </tr>
         </tbody>

@@ -9,6 +9,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.server.ResponseStatusException;
 import org.springframework.http.HttpStatus;
 
+import java.security.Principal;
 import java.util.List;
 import java.util.Optional;
 
@@ -29,12 +30,25 @@ public class WorkController {
         return "works/list";
     }
 
+    /**
+     * 곡 상세.
+     *
+     * 초안(published = false)은 로그인한 관리자에게만 보인다. 그 외에는 404 다.
+     *
+     * Principal 은 익명 요청에서 null 이다. 스프링 시큐리티가 익명 사용자에게도
+     * Authentication 을 붙이지만, HttpServletRequest.getUserPrincipal() 은
+     * 익명 토큰을 null 로 돌려주기 때문에 이 판정은 "로그인했는가" 와 같다.
+     *
+     * 목록 쿼리들은 published = true 로 걸러지므로 초안이 탐색 경로로 새어
+     * 나가지는 않는다. 주소를 직접 쳤을 때만, 관리자에게만 열린다.
+     */
     @GetMapping("/works/{slug}")
-    public String detail(@PathVariable String slug, Model model) {
+    public String detail(@PathVariable String slug, Principal principal, Model model) {
         Work work = workRepository.findBySlugWithDetails(slug)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "곡을 찾을 수 없습니다"));
 
-        if (!work.isPublished()) {
+        boolean draft = !work.isPublished();
+        if (draft && principal == null) {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "아직 공개되지 않은 곡입니다");
         }
 
@@ -50,6 +64,10 @@ public class WorkController {
                 .toList();
 
         model.addAttribute("work", work);
+        model.addAttribute("draft", draft);
+        // 초안 주소가 어쩌다 새어 나가도 검색에는 잡히지 않게 한다.
+        // layout 의 head 조각이 이 값을 보고 robots 메타를 넣는다.
+        model.addAttribute("noindex", draft);
         model.addAttribute("storyHtml", markdownRenderer.toHtml(work.getStory()));
         model.addAttribute("recording", recording.orElse(null));
         model.addAttribute("siblings", siblings);

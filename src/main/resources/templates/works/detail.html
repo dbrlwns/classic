@@ -6,6 +6,15 @@
 <header th:replace="~{layout :: header}"></header>
 
 <main class="container">
+
+    <!-- 초안을 라이브로 착각하는 것이 이 기능의 유일한 위험이다.
+         글 위에, 눈에 띄게, 수정으로 바로 돌아갈 길과 함께 둔다. -->
+    <div class="draft-banner" th:if="${draft}">
+        <strong>초안</strong>
+        <span>이 곡은 공개되지 않았습니다. 로그인한 상태에서만 보입니다.</span>
+        <a th:href="@{'/admin/works/' + ${work.id} + '/edit'}">수정으로 →</a>
+    </div>
+
     <div class="work-header">
         <h1 th:text="${work.title}">제목</h1>
         <p class="meta">

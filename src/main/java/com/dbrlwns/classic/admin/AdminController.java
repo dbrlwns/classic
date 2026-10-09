@@ -72,7 +72,11 @@ public class AdminController {
     public String composerSave(@Valid @ModelAttribute("form") ComposerForm form,
                                BindingResult bindingResult,
                                RedirectAttributes redirectAttributes) {
-        if (form.getId() == null && composerRepository.existsBySlug(form.getSlug())) {
+        // 추가할 때는 전부와, 수정할 때는 자기 자신을 뺀 나머지와 비교한다.
+        boolean slugTaken = form.getId() == null
+                ? composerRepository.existsBySlug(form.getSlug())
+                : composerRepository.existsBySlugAndIdNot(form.getSlug(), form.getId());
+        if (slugTaken) {
             bindingResult.rejectValue("slug", "duplicate", "이미 쓰고 있는 슬러그입니다");
         }
         if (bindingResult.hasErrors()) {
@@ -116,11 +120,22 @@ public class AdminController {
                            BindingResult bindingResult,
                            Model model,
                            RedirectAttributes redirectAttributes) {
-        if (form.getId() == null && workRepository.existsBySlug(form.getSlug())) {
+        boolean slugTaken = form.getId() == null
+                ? workRepository.existsBySlug(form.getSlug())
+                : workRepository.existsBySlugAndIdNot(form.getSlug(), form.getId());
+        if (slugTaken) {
             bindingResult.rejectValue("slug", "duplicate", "이미 쓰고 있는 슬러그입니다");
         }
         if (bindingResult.hasErrors()) {
             model.addAttribute("composers", composerRepository.findAll());
+            // 수정 중에 걸렸다면 아래 음원 목록도 같이 돌려줘야 한다.
+            // 이걸 빼면 오류 메시지는 뜨는데 붙여 둔 음원이 사라진 것처럼 보인다.
+            if (form.getId() != null) {
+                workRepository.findByIdWithDetails(form.getId()).ifPresent(existing -> {
+                    model.addAttribute("work", existing);
+                    model.addAttribute("recordings", existing.getRecordings());
+                });
+            }
             return "admin/work-form";
         }
 
