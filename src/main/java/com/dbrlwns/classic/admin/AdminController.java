@@ -2,7 +2,6 @@ package com.dbrlwns.classic.admin;
 
 import com.dbrlwns.classic.composer.Composer;
 import com.dbrlwns.classic.composer.ComposerRepository;
-import com.dbrlwns.classic.recording.Recording;
 import com.dbrlwns.classic.work.Work;
 import com.dbrlwns.classic.work.WorkRepository;
 import jakarta.validation.Valid;
@@ -30,19 +29,12 @@ public class AdminController {
 
     @GetMapping
     public String dashboard(Model model) {
-        List<Work> works = workRepository.findAllWithDetails();
-
-        // 재시작하면(create-drop) 관리 화면에서 넣은 음원은 사라진다.
-        // 지우기 전에 영상 ID 를 data.sql 로 옮겨 적을 수 있도록 한데 모아 보여준다.
-        List<Recording> youtubeRecordings = works.stream()
-                .flatMap(work -> work.getRecordings().stream())
-                .filter(Recording::isYoutube)
-                .filter(recording -> recording.getYoutubeId() != null)
-                .toList();
-
+        // "data.sql 에 옮길 음원" 표가 여기 있었다. ddl-auto 가 create-drop 이라
+        // 재시작하면 관리 화면에서 넣은 음원이 사라졌고, 지우기 전에 영상 ID 를
+        // 회수할 창구가 필요했다. Flyway 와 파일 DB 로 바뀌면서 데이터가 살아남으므로
+        // 그 우회로를 걷어냈다.
         model.addAttribute("composerCount", composerRepository.count());
-        model.addAttribute("works", works);
-        model.addAttribute("youtubeRecordings", youtubeRecordings);
+        model.addAttribute("works", workRepository.findAllWithDetails());
         return "admin/dashboard";
     }
 

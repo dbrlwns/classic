@@ -2,6 +2,8 @@ package com.dbrlwns.classic.recording;
 
 import com.dbrlwns.classic.work.Work;
 import jakarta.persistence.*;
+import org.hibernate.annotations.JdbcTypeCode;
+import org.hibernate.type.SqlTypes;
 
 import java.time.Instant;
 
@@ -26,7 +28,16 @@ public class Recording {
     /** "Glenn Gould (1981)" 처럼 연주자와 녹음 연도를 함께 적는다. */
     private String performer;
 
+    /*
+     * Hibernate 6 은 EnumType.STRING 이어도 방언이 네이티브 enum 을 지원하면
+     * 그쪽을 쓴다. H2 에서는 enum ('SELF_HOSTED','YOUTUBE') 이 나오는데,
+     * 같은 문법을 PostgreSQL 은 받지 않는다(CREATE TYPE 이 따로 필요하다).
+     *
+     * 마이그레이션 SQL 을 두 DB 에서 그대로 쓰려면 평범한 varchar 여야 한다.
+     * JdbcTypeCode 로 못박아 두면 방언과 무관하게 varchar(20) 으로 떨어진다.
+     */
     @Enumerated(EnumType.STRING)
+    @JdbcTypeCode(SqlTypes.VARCHAR)
     @Column(nullable = false, length = 20)
     private SourceType sourceType = SourceType.YOUTUBE;
 

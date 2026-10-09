@@ -93,44 +93,8 @@
         </tbody>
     </table>
 
-    <!--
-      재시작하면(ddl-auto: create-drop) 관리 화면에서 넣은 음원은 사라진다.
-      지우기 전에 영상 ID 를 data.sql 로 옮겨 적을 수 있도록 한데 모아 둔다.
-    -->
-    <div class="section" th:if="${!#lists.isEmpty(youtubeRecordings)}">
-        <h2 style="font-size:20px;">data.sql 에 옮길 음원</h2>
-        <p style="color:var(--text-muted);font-size:14px;margin-top:0;">
-            재시작하면 여기 있는 음원은 사라집니다.
-            <code>src/main/resources/data.sql</code> 맨 아래 표에서 같은 slug 줄을 찾아
-            영상 ID 를 채워 두면 다음 기동부터 자동으로 붙습니다.
-        </p>
-
-        <table>
-            <thead>
-            <tr><th>곡 slug</th><th>영상 ID</th><th>연주자</th></tr>
-            </thead>
-            <tbody>
-            <tr th:each="r : ${youtubeRecordings}">
-                <td><code class="copyable" th:text="${r.work.slug}">slug</code></td>
-                <td>
-                    <code class="copyable" th:text="${r.youtubeId}">videoId</code>
-                    <button type="button" class="btn secondary small copy-btn"
-                            th:attr="data-copy=${r.youtubeId}">복사</button>
-                </td>
-                <td th:text="${r.performer} ?: '—'"></td>
-            </tr>
-            </tbody>
-        </table>
-
-        <p style="color:var(--text-muted);font-size:13px;">
-            data.sql 에는 이미 모든 곡의 slug 줄이 들어 있습니다.
-            줄을 새로 만들 필요 없이 가운데 빈 칸만 채우면 됩니다.
-        </p>
-<pre class="sql-hint">    SELECT 'clair-de-lune',  '<span>여기에 영상 ID</span>', '연주자' UNION ALL</pre>
-    </div>
 </main>
 
-<script th:src="@{/js/copy.js}"></script>
 <script th:src="@{/js/work-filter.js}" defer></script>
 </body>
 </html>

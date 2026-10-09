@@ -1,4 +1,4 @@
-# 운영 프로파일. 진짜 콘텐츠를 넣기 시작하는 시점에 Flyway 를 붙이고 validate 로 전환한다.
+# 운영 프로파일.
 spring:
   jpa:
     hibernate:
@@ -10,11 +10,12 @@ spring:
     username: ${DATABASE_USERNAME}
     password: ${DATABASE_PASSWORD}
 
-  # 운영에서는 시드를 넣지 않는다. data.sql 은 매 기동마다 실행되므로
-  # 켜 두면 재배포할 때마다 같은 행이 다시 들어간다.
-  sql:
-    init:
-      mode: never
+  # 마이그레이션은 로컬과 같은 파일을 같은 순서로 돌린다.
+  # 첫 배포 때 V1(스키마)과 V2(카탈로그)가 들어가고, 그 뒤로는 새로 추가된
+  # V 파일만 실행된다. 로컬과 운영의 스키마가 갈라질 길이 없다.
+  flyway:
+    enabled: true
+    locations: classpath:db/migration
 
   h2:
     console:

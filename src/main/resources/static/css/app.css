@@ -1177,26 +1177,6 @@ code.copyable {
     user-select: all;      /* 한 번 클릭으로 전체 선택 */
 }
 
-.sql-hint {
-    margin: 8px 0 0;
-    padding: 12px 14px;
-    overflow-x: auto;
-    background: var(--surface);
-    border: 1px solid var(--border);
-    border-radius: 2px;
-    font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
-    font-size: 12.5px;
-    line-height: 1.6;
-    color: var(--text-muted);
-}
-
-.sql-hint span {
-    padding: 1px 4px;
-    background: var(--accent-soft);
-    border-radius: 2px;
-    color: var(--accent);
-    font-weight: 600;
-}
 
 .section {
     margin-top: 44px;
