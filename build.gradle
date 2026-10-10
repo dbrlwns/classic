@@ -34,6 +34,12 @@ dependencies {
     // 잘못된 스키마로 도는 대신 부팅이 멈춘다.
     implementation 'org.flywaydb:flyway-core'
 
+    // Flyway 10 부터 DB 별 지원이 별도 모듈로 쪼개졌다. core 에는 H2 가 들어 있어서
+    // 로컬에서는 멀쩡히 돌지만, PostgreSQL 로 붙이면 기동하면서
+    // "Unsupported Database: PostgreSQL 16.13" 으로 죽는다.
+    // 실제 PostgreSQL 에 띄워 보고서야 발견했다.
+    runtimeOnly 'org.flywaydb:flyway-database-postgresql'
+
     runtimeOnly 'com.h2database:h2'
     runtimeOnly 'org.postgresql:postgresql'
 
