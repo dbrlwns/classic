@@ -24,6 +24,21 @@ spring:
   thymeleaf:
     cache: true
 
+# 프록시(nginx) 뒤에서 돈다.
+#
+# nginx 가 TLS 를 끝내고 앱에는 평문 http 로 넘긴다. 그래서 앱이 보는 요청은
+# 전부 http 이고, 요청에서 주소를 뽑는 og:url 이 https 가 아니라 http 로 나간다.
+# 공유 카드와 검색 결과에 http 주소가 박히는 것은 물론, 브라우저가 혼합 콘텐츠로
+# 막는 경우도 생긴다.
+#
+# framework 로 두면 스프링이 X-Forwarded-Proto / X-Forwarded-Host 를 보고
+# 원래 요청이 무엇이었는지 복원한다. nginx 쪽에서 그 헤더를 반드시 넣어 줘야 한다
+# (deploy/nginx-moirai.conf 참고). 헤더를 안 보내면서 이 설정만 켜면 소용이 없고,
+# 반대로 아무나 그 헤더를 보낼 수 있는 자리에 앱을 노출하면 위조될 수 있다.
+# 앱은 127.0.0.1 에만 바인딩하고 nginx 만 통하게 한다.
+server:
+  forward-headers-strategy: framework
+
 # 관리자 계정.
 #
 # 기본값을 일부러 주지 않는다. application.yml 쪽은 ${ADMIN_PASSWORD:admin} 이라

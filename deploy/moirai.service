@@ -1,0 +1,62 @@
+# systemd 유닛. /etc/systemd/system/moirai.service 로 복사한다.
+#
+#   sudo systemctl daemon-reload
+#   sudo systemctl enable --now moirai
+#   sudo systemctl status moirai
+#   journalctl -u moirai -f          # 로그 따라 보기
+#
+# 환경변수는 이 파일에 적지 않고 /etc/moirai/moirai.env 에서 읽는다.
+# 이 파일은 깃에 들어가지만 그쪽은 안 들어가고, 권한도 600 으로 잠근다.
+
+[Unit]
+Description=Moirai
+# 앱과 DB 가 같은 서버에 있다. Postgres 가 먼저 떠야 Flyway 가 붙는다.
+After=network-online.target postgresql.service
+Wants=network-online.target
+Requires=postgresql.service
+
+[Service]
+Type=simple
+User=moirai
+Group=moirai
+WorkingDirectory=/opt/moirai
+
+EnvironmentFile=/etc/moirai/moirai.env
+
+# 메모리.
+#
+# 12GB VM 이지만 Postgres 와 OS 가 같이 산다. 앱에 1GB 면 이 규모에 넉넉하다.
+# 컨테이너가 아니라 VM 이므로 MaxRAMPercentage 대신 Xmx 로 못박는다 —
+# 퍼센트로 주면 12GB 의 몇 %가 되어 혼자 다 먹는다.
+#
+# Ampere A1 은 ARM64 다. JDK 도 aarch64 용을 깔아야 한다.
+ExecStart=/usr/bin/java \
+    -Xms256m -Xmx1g \
+    -XX:+UseSerialGC \
+    -Djava.security.egd=file:/dev/./urandom \
+    -jar /opt/moirai/moirai.jar
+
+# 죽으면 되살린다. 단, 10분 안에 5번 넘게 죽으면 포기하고 멈춘다 —
+# 설정이 틀려서 계속 죽는 경우 무한 재시작으로 로그만 쌓이는 걸 막는다.
+Restart=on-failure
+RestartSec=5
+StartLimitBurst=5
+StartLimitIntervalSec=600
+
+# 종료 시 유예. Flyway 가 마이그레이션 중이면 기다려 준다.
+TimeoutStopSec=30
+
+# 최소 권한.
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectSystem=strict
+ProtectHome=true
+# 앱이 쓸 수 있는 유일한 자리
+ReadWritePaths=/opt/moirai/logs
+
+StandardOutput=journal
+StandardError=journal
+SyslogIdentifier=moirai
+
+[Install]
+WantedBy=multi-user.target
