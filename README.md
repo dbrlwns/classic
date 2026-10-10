@@ -164,6 +164,19 @@ com/dbrlwns/classic/
 
 자세한 근거는 [docs/concept.md](docs/concept.md#저작권-구조--설계의-전제) 참고.
 
+## 배포
+
+| 문서 | 대상 |
+|---|---|
+| [docs/deploy-railway.md](docs/deploy-railway.md) | Railway — `git push` 하면 배포. 20~30분 |
+| [docs/deploy-oracle.md](docs/deploy-oracle.md) | Oracle Cloud — 직접 띄우기. 반나절 |
+
+`deploy/` 의 systemd·nginx·백업 파일은 직접 띄우는 쪽에서 쓴다.
+Railway 는 `Dockerfile` 만 쓴다.
+
+**두 환경에서 반대인 값이 하나 있다.** `SERVER_ADDRESS` 는 직접 띄울 때만
+`127.0.0.1` 로 가두고, PaaS 에서는 넣지 않는다(기본 `0.0.0.0`).
+
 ## 스키마 관리
 
 `ddl-auto: update` 는 쓰지 않습니다. 컬럼을 추가만 하고 rename/삭제/타입변경을

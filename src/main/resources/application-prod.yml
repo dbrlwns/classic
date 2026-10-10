@@ -39,6 +39,21 @@ spring:
 server:
   forward-headers-strategy: framework
 
+  # 포트를 플랫폼이 정해 주는 경우가 있다.
+  #
+  # Railway 같은 PaaS 는 컨테이너마다 포트를 배정하고 PORT 환경변수로 알려준다.
+  # 그 포트로 듣지 않으면 플랫폼이 앱을 찾지 못해 "no healthy upstream" 이 뜬다.
+  # 직접 띄우는 서버(Oracle 등)에서는 PORT 가 없으므로 8080 으로 떨어진다.
+  port: ${PORT:8080}
+
+  # 주소(server.address)는 여기서 정하지 않는다. 환경마다 반대이기 때문이다.
+  #
+  #   직접 띄우는 서버  127.0.0.1  — nginx 만 통하게 가둔다
+  #   PaaS             0.0.0.0    — 플랫폼 프록시가 컨테이너 밖에서 들어온다
+  #
+  # 기본값이 0.0.0.0 이므로 PaaS 는 아무것도 안 해도 되고,
+  # 직접 띄울 때만 SERVER_ADDRESS=127.0.0.1 을 준다(deploy/moirai.env.example).
+
 # 관리자 계정.
 #
 # 기본값을 일부러 주지 않는다. application.yml 쪽은 ${ADMIN_PASSWORD:admin} 이라
