@@ -29,10 +29,22 @@ USER moirai
 
 COPY --from=build /src/build/libs/*-SNAPSHOT.jar /app/moirai.jar
 
-# 컨테이너에서는 Xmx 로 못박는 대신 비율로 준다. 플랫폼이 컨테이너 메모리를
-# 바꿔도 따라가기 때문이다. (직접 띄우는 VM 에서는 반대로 Xmx 가 맞다 —
-# 12GB VM 에서 75% 를 주면 앱이 9GB 를 잡으려 든다.)
-ENV JAVA_OPTS="-XX:MaxRAMPercentage=75 -XX:+UseSerialGC"
+# 메모리를 비율이 아니라 숫자로 못박는다.
+#
+# 처음에 MaxRAMPercentage=75 로 뒀는데, 사용량만큼 과금하는 플랫폼에서는
+# 위험하다. 컨테이너에 할당된 메모리가 크면 최대 힙도 따라 커지고, JVM 은
+# 힙에 여유가 있으면 GC 를 미루며 페이지를 계속 건드린다. 쓰지도 않는
+# 메모리에 요금이 붙는다(Railway 기준 RAM $10/GB/월).
+#
+# 실측: 이 앱은 힙을 384m 로 주나 256m 로 주나 RSS 가 385MB / 377MB 로
+# 8MB 밖에 차이 나지 않는다. 대부분이 힙이 아니라 메타스페이스·코드 캐시·
+# 스레드 스택 같은 JVM 자체 오버헤드라, 380MB 안팎이 사실상 바닥이다.
+# 그래서 여유를 조금 둔 384m 로 고정한다. 더 줄여도 요금이 안 줄고
+# OOM 위험만 생긴다.
+#
+# SerialGC 는 코어가 적고 힙이 작을 때 가장 가볍다. 병렬 GC 는 스레드마다
+# 메모리를 더 쓴다.
+ENV JAVA_OPTS="-Xmx384m -Xss512k -XX:+UseSerialGC -XX:MaxMetaspaceSize=128m"
 
 # 포트는 플랫폼이 PORT 로 알려준다. EXPOSE 는 문서용일 뿐 실제 바인딩과 무관하다.
 EXPOSE 8080
