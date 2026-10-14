@@ -177,8 +177,8 @@ sudo systemctl reload nginx
 도메인 DNS 에 A 레코드로 공인 IP 를 걸고, 퍼진 뒤에:
 
 ```bash
-dig +short moirai.kr             # 공인 IP 가 나와야 한다
-sudo certbot --nginx -d moirai.kr -d www.moirai.kr
+dig +short moirai.date             # 공인 IP 가 나와야 한다
+sudo certbot --nginx -d moirai.date -d www.moirai.date
 ```
 
 certbot 이 443 블록을 만들고 80 을 리다이렉트로 바꿔 준다.
@@ -187,7 +187,7 @@ certbot 이 443 블록을 만들고 80 을 리다이렉트로 바꿔 준다.
 확인:
 
 ```bash
-curl -s https://moirai.kr/works/bolero | grep 'og:url'
+curl -s https://moirai.date/works/bolero | grep 'og:url'
 # https:// 로 나와야 한다. http:// 면 nginx 의 X-Forwarded-Proto 를 확인한다
 ```
 

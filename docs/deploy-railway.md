@@ -81,16 +81,40 @@ Started ClassicApplication
 
 ## 5. 도메인 연결
 
-Settings → Networking → **Custom Domain** 에 `moirai.kr` 을 넣으면
-Railway 가 CNAME 값을 알려준다. 도메인 DNS 에 그 CNAME 을 건다.
+Settings → Networking → **Custom Domain** 에 `moirai.date` 을 넣으면
+Railway 가 레코드 두 개를 알려준다. **둘 다** 넣어야 한다.
+
+| Type | Name | Content |
+|---|---|---|
+| CNAME | `@` | `xxxx.up.railway.app` |
+| TXT | `_railway-verify` | Railway 가 보여주는 값 |
+
+CNAME 은 트래픽이 어디로 갈지 정하고, TXT 는 "이 도메인이 정말 내 것"임을
+증명한다. **TXT 가 없으면 CNAME 이 초록이어도 Railway 가 요청을 받지 않는다.**
+실제로 여기서 한 번 막혔다.
+
+Cloudflare 를 쓴다면:
+
+- **프록시는 회색 구름(DNS only)** 으로 둔다. 주황색이면 Cloudflare 가 TLS 를
+  가로채서 Railway 가 인증서를 발급하지 못하고, SSL 모드가 Flexible 이면
+  리다이렉트 무한 루프가 생긴다.
+- 루트 도메인에 CNAME 을 걸어도 된다. Cloudflare 가 **플래트닝**해서 A 레코드로
+  응답한다. 그래서 `nslookup -type=CNAME` 에는 안 보이고 A 레코드만 보이는데,
+  이게 정상이다.
+- TXT 의 Name 칸에는 `_railway-verify` 만 넣는다. 전체 주소를 붙여넣으면
+  Cloudflare 가 도메인을 또 붙여 `_railway-verify.moirai.date.moirai.date` 가 된다.
 
 인증서는 Railway 가 알아서 발급·갱신한다. certbot 이 필요 없다.
+
+> 맥에서 `curl` 이 "Could not resolve host" 라고 하는데 `nslookup` 은 되는 경우,
+> 시스템 DNS 캐시에 실패했던 결과가 남은 것이다.
+> `sudo dscacheutil -flushcache; sudo killall -HUP mDNSResponder`
 
 도메인이 붙은 뒤 확인:
 
 ```bash
-curl -s https://moirai.kr/works/bolero | grep 'og:url'
-# https://moirai.kr/works/bolero 로 나와야 한다
+curl -s https://moirai.date/works/bolero | grep 'og:url'
+# https://moirai.date/works/bolero 로 나와야 한다
 ```
 
 ---
@@ -145,6 +169,17 @@ Railway 대시보드의 Postgres 서비스에서 백업을 켠다.
 # Postgres 서비스 → Variables 의 DATABASE_PUBLIC_URL 을 쓴다
 pg_dump '<DATABASE_PUBLIC_URL>' -Fp | gzip > moirai-$(date +%F).sql.gz
 ```
+
+맥에 `pg_dump` 가 없으면(기본으로 깔려 있지 않다):
+
+```bash
+brew install libpq
+brew link --force libpq      # pg_dump, psql 을 PATH 에 건다
+pg_dump --version            # 확인
+```
+
+`libpq` 는 서버 없이 클라이언트 도구만 설치한다. **클라이언트 버전이 서버보다
+낮으면** pg_dump 가 "server version mismatch" 로 거부하므로, 최신으로 깐다.
 
 > 스토리가 DB 에만 있다. **복구해 본 적 없는 백업은 백업이 아니다.**
 
