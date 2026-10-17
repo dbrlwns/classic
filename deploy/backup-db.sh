@@ -1,46 +1,59 @@
 #!/usr/bin/env bash
+# Moirai — Railway Postgres 백업
 #
-# 매일 DB 를 덤프하고 오래된 것을 지운다.
+# Postgres 컨테이너 안에서 pg_dump를 실행하고 결과만 로컬로 받아온다.
+# TCP 프록시를 켜지 않으므로 DB가 인터넷에 노출되지 않고, 로컬에
+# pg_dump를 설치할 필요도 없다 (서버와 클라이언트 버전이 항상 일치).
 #
-#   sudo cp backup-db.sh /usr/local/bin/moirai-backup
-#   sudo chmod +x /usr/local/bin/moirai-backup
-#   sudo crontab -e
-#       15 4 * * * /usr/local/bin/moirai-backup >> /var/log/moirai-backup.log 2>&1
+# 사전 준비 (각 1회):
+#   brew install railway
+#   railway login
+#   railway link                       # 프로젝트 루트에서 프로젝트 선택
+#   railway ssh -s Postgres -- echo ok # SSH 키 등록 절차를 먼저 통과시켜 둔다
 #
-# 중요: 이 백업은 같은 서버에 있다. 디스크가 날아가면 백업도 같이 날아간다.
-# 스토리 38편이 DB 에만 있으므로, 주기적으로 받은 파일을 다른 곳으로
-# 옮겨 두는 것까지 해야 진짜 백업이다.
-#
-# 그리고 복구해 본 적 없는 백업은 백업이 아니다. 한 번은 해 보라:
-#   createdb -U postgres moirai_restore_test
-#   gunzip -c /var/backups/moirai/moirai-2026-10-10.sql.gz | psql -U postgres -d moirai_restore_test
-#   psql -U postgres -d moirai_restore_test -c 'select count(*) from work'
+# 사용법:
+#   deploy/backup-db.sh
+#   BACKUP_DIR=~/moirai-backups deploy/backup-db.sh
+#   KEEP=30 deploy/backup-db.sh
 
 set -euo pipefail
 
-BACKUP_DIR=/var/backups/moirai
-KEEP_DAYS=14
-DB_NAME=moirai
-DB_USER=moirai
+SERVICE="${SERVICE:-Postgres}"
+BACKUP_DIR="${BACKUP_DIR:-./backups}"
+KEEP="${KEEP:-14}"
+
+command -v railway >/dev/null \
+    || { echo "railway CLI가 없습니다. brew install railway" >&2; exit 1; }
 
 mkdir -p "$BACKUP_DIR"
 
-STAMP=$(date +%Y-%m-%d-%H%M)
-TARGET="$BACKUP_DIR/moirai-$STAMP.sql.gz"
+stamp="$(date +%Y%m%d-%H%M%S)"
+out="$BACKUP_DIR/moirai-$stamp.sql.gz"
+tmp="$(mktemp "${TMPDIR:-/tmp}/moirai-dump.XXXXXX")"
+trap 'rm -f "$tmp"' EXIT
 
-# -Fp 는 평문 SQL. 작은 DB 라 복구가 단순한 쪽이 낫다.
-# .pgpass 에 비밀번호를 두거나 peer 인증을 쓴다. 명령줄에 적으면 ps 에 보인다.
-pg_dump -U "$DB_USER" -h 127.0.0.1 -Fp "$DB_NAME" | gzip > "$TARGET"
+echo "덤프 중... (service=$SERVICE)"
+railway ssh -s "$SERVICE" -- \
+    sh -c 'pg_dump -U "$PGUSER" -d "$PGDATABASE" --no-owner --no-privileges' \
+    > "$tmp"
 
-# 덤프가 비었는지 확인한다. 실패해도 gzip 은 성공해서 빈 파일이 남을 수 있다.
-SIZE=$(stat -c %s "$TARGET")
-if [ "$SIZE" -lt 1024 ]; then
-    echo "[$(date -Is)] 덤프가 너무 작다($SIZE 바이트). 실패로 본다: $TARGET" >&2
+# 끝까지 내려왔는지 확인한다. 중간에 끊긴 덤프나 CLI 안내 메시지만 담긴
+# 파일은 복구에 쓸 수 없는데, 크기만 보면 성공한 것처럼 보인다.
+if ! grep -q 'PostgreSQL database dump complete' "$tmp"; then
+    echo "덤프가 완전하지 않습니다. 저장하지 않고 중단합니다." >&2
+    echo "--- 받은 내용 앞부분 ---" >&2
+    head -5 "$tmp" >&2
     exit 1
 fi
 
-echo "[$(date -Is)] 백업 완료 $TARGET ($SIZE 바이트)"
+tables="$(grep -c '^COPY public\.' "$tmp" || true)"
 
-# 오래된 것 정리
-find "$BACKUP_DIR" -name 'moirai-*.sql.gz' -mtime +"$KEEP_DAYS" -delete
-echo "[$(date -Is)] $KEEP_DAYS 일 지난 백업 정리됨. 현재 $(ls -1 "$BACKUP_DIR" | wc -l)개 보관"
+gzip -c "$tmp" > "$out"
+echo "저장됨: $out ($(du -h "$out" | cut -f1), 테이블 $tables개)"
+
+# 오래된 백업 정리 — 최근 $KEEP 개만 남긴다.
+cd "$BACKUP_DIR"
+ls -1t moirai-*.sql.gz 2>/dev/null | tail -n "+$((KEEP + 1))" | while read -r old; do
+    echo "삭제: $old"
+    rm -f "$old"
+done
