@@ -49,7 +49,7 @@ fi
 tables="$(grep -c '^COPY public\.' "$tmp" || true)"
 
 gzip -c "$tmp" > "$out"
-echo "저장됨: $out ($(du -h "$out" | cut -f1), 테이블 $tables개)"
+echo "저장됨: $out ($(du -h "$out" | cut -f1), 테이블 ${tables}개)"
 
 # 오래된 백업 정리 — 최근 $KEEP 개만 남긴다.
 cd "$BACKUP_DIR"

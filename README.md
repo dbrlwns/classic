@@ -1,208 +1,193 @@
 # Moirai
 
-클래식 곡에 얽힌 이야기를 읽고, 그 자리에서 곡을 듣는 서비스.
+> 클래식 곡에 얽힌 이야기를 읽고, 그 자리에서 음악을 듣는 큐레이션 서비스
 
-모이라이는 그리스 신화에서 실을 잣고(클로토), 길이를 재고(라케시스),
-끊는(아트로포스) 세 여신이다. 이름의 고리는 "운명"이 아니라 "실"이다.
-음악에서 선율을 line 이라 부르는 것과 같은 자리에 있다.
+Moirai는 곡을 단순히 재생하는 대신, 작곡 배경과 곡에 얽힌 이야기를 음악과 함께 감상할 수 있도록 만든 웹 서비스입니다. 이름은 그리스 신화에서 인간의 운명을 실로 다루는 세 여신에서 가져왔습니다.
 
-> 모든 곡은 하나의 실이다. 시작되고, 이어지고, 끝난다.
-> 그 사이에 무슨 일이 있었는지를 적는다.
+> 모든 곡은 하나의 실입니다. 시작되고, 이어지고, 끝납니다.  
+> 그 사이에 무슨 일이 있었는지를 기록합니다.
 
-저장소와 패키지 이름은 `classic` 그대로 둔다. 브랜드와 패키지명이 같을
-이유가 없고, 바꾸면 전 파일을 건드리는데 얻는 것이 없다.
+## 운영 기록
 
-제품 정의와 설계 근거는 **[docs/concept.md](docs/concept.md)** 에 있습니다.
-설계 결정을 바꾸기 전에 먼저 읽으세요.
+- **배포 환경:** Railway, PostgreSQL, Docker
+- **실제 배포 기간:** 2026.10.12–2026.10.26
+- **운영 상태:** 비용 관리와 다른 프로젝트 집중을 위해 공개 운영을 일시 중단했습니다.
+- **배포 도메인:** `moirai.date` (운영 종료)
 
-## 요구사항
+아래 화면은 Railway의 실제 배포 환경에서 촬영했습니다.
 
-**JDK 21.** 없으면 `./gradlew` 가 이렇게 멈춥니다.
+## 주요 화면
 
-```
-Cannot find a Java installation on your machine ... matching: {languageVersion=21, ...}
-```
+### 곡 목록
 
-**macOS**
+작곡가, 작품 번호, 작곡 연도와 짧은 소개를 한 화면에서 확인하고 곡을 선택할 수 있습니다.
 
-```bash
-brew install --cask temurin@21
-/usr/libexec/java_home -V          # 설치 확인
-```
+![곡 목록](docs/images/main-page.png)
 
-**Windows**
+### 이어 듣기
 
-```powershell
-winget install EclipseAdoptium.Temurin.21.JDK
-```
+YouTube 임베드 플레이어와 재생 목록을 한 화면에 배치했습니다. 음악을 들으며 곡의 소개를 확인하고 이전·다음 곡으로 이동할 수 있습니다.
 
-새 터미널을 열고 확인합니다.
+![이어 듣기](docs/images/listen-page.png)
 
-```powershell
-java -version
-echo $env:JAVA_HOME
-```
+### 콘텐츠 관리
 
-`JAVA_HOME` 이 비어 있으면 (winget 설치 시 자주 그렇습니다) 직접 설정합니다.
+별도의 관리자 화면에서 곡과 작곡가를 등록하고 공개 상태, 음원 및 스토리 작성 여부를 확인할 수 있습니다.
 
-```powershell
-setx JAVA_HOME "C:\Program Files\Eclipse Adoptium\jdk-21.0.x-hotspot"
-```
+![관리자 곡 목록](docs/images/admin-main-page.png)
 
-설정 후 터미널을 다시 열어야 반영됩니다.
+### 음원 등록
 
-`settings.gradle` 에 foojay toolchain resolver 를 넣어둬서 JDK 21 이 없으면
-Gradle 이 직접 받아오기는 합니다. 다만 그건 Gradle 전용이라 IDE 는 따로
-JDK 를 찾으므로, IntelliJ 등에서 열 거면 위처럼 설치해 두는 편이 낫습니다.
+YouTube URL을 입력하면 oEmbed로 영상 정보를 불러오고, 저장 전에 실제 재생 가능 여부를 미리 확인할 수 있습니다. 음원별 라이선스와 출처도 함께 기록하도록 구성했습니다.
 
-## 실행
+![관리자 음원 등록](docs/images/admin-work-adding-page.png)
 
-```bash
-./gradlew bootRun              # macOS / Linux
-```
+## 핵심 기능
 
-```powershell
-.\gradlew.bat bootRun          # Windows PowerShell
-```
+- 작곡가·곡·음원의 등록, 조회, 수정 및 공개 상태 관리
+- 클래식 곡 목록·작곡가별 목록·곡 상세 페이지 제공
+- YouTube URL 분석 및 oEmbed 기반 영상 정보 조회
+- 저장 전 임베드 영상 미리보기와 재생 가능 여부 확인
+- YouTube 임베드와 자체 호스팅 음원을 동일한 인터페이스로 다루는 플레이어 어댑터
+- Markdown 기반 곡 스토리 작성 및 HTML 렌더링
+- Railway 환경의 Spring Boot 애플리케이션과 PostgreSQL 연결
+- Flyway 마이그레이션과 Hibernate 스키마 검증
 
-PowerShell 에서는 `.\` 를 빼면 실행되지 않습니다.
+## 기술 스택
 
-- 사이트: http://localhost:8080
-- 관리: http://localhost:8080/admin (기본 `admin` / `admin`)
-- H2 콘솔: http://localhost:8080/h2-console (JDBC URL `jdbc:h2:mem:classic`)
+| 구분 | 기술 | 사용 목적 |
+|---|---|---|
+| Backend | Java 21, Spring Boot, Spring MVC | 서버 애플리케이션과 웹 요청 처리 |
+| Security | Spring Security | 단일 관리자 계정 인증과 관리자 경로 보호 |
+| View | Thymeleaf, JavaScript | 서버 렌더링 화면과 플레이어 제어 |
+| Data | Spring Data JPA, H2, PostgreSQL | 로컬·운영 데이터 저장 |
+| Migration | Flyway | 환경별 스키마 변경 이력 관리 |
+| Integration | Spring RestClient, YouTube oEmbed | YouTube URL의 영상 정보 조회 |
+| Deploy | Docker, Railway | 컨테이너 빌드와 공개 환경 배포 |
 
-## 관리자 계정 바꾸기
+## 애플리케이션 구조
 
-기본값 `admin` / `admin` 은 **배포 전에 반드시 바꿔야 합니다.**
-
-### 권장: application-local.yml
-
-`bootRun` 은 항상 `local` 프로파일로 뜨게 해뒀습니다. 아래 파일만 만들면
-추가 옵션 없이 `./gradlew bootRun` 으로 내 계정이 적용됩니다.
-
-```yaml
-# src/main/resources/application-local.yml   ← .gitignore 에 있어 커밋되지 않음
-app:
-  admin:
-    username: 내아이디
-    password: 내비밀번호
-```
-
-이 파일이 없어도 에러가 아니라 `application.yml` 의 기본값을 씁니다.
-그래서 다른 기기에서 클론해도 그냥 돌아갑니다.
-
-**`application.yml` 에 직접 적지 마세요. 그 파일은 커밋됩니다.**
-
-### 한 번만 쓸 때: 환경변수
-
-```bash
-ADMIN_USERNAME=... ADMIN_PASSWORD=... ./gradlew bootRun
-```
-
-```powershell
-$env:ADMIN_USERNAME="..."; $env:ADMIN_PASSWORD="..."; .\gradlew.bat bootRun
-```
-
-### IntelliJ
-
-Run → Edit Configurations → Active profiles 에 `local` 을 적거나,
-Environment variables 에 `SPRING_PROFILES_ACTIVE=local` 을 넣습니다.
-(`build.gradle` 의 bootRun 설정은 Gradle 로 실행할 때만 적용됩니다.)
-
-## 인코딩과 줄바꿈
-
-소스에 한글 주석이 많습니다. `build.gradle` 에서 컴파일 인코딩을 UTF-8 로 고정하고
-`gradle.properties` 에서 Gradle 데몬도 UTF-8 로 띄웁니다. 윈도우에서도 그대로 빌드됩니다.
-
-윈도우 콘솔에 한글 로그가 깨져 보이면 콘솔 쪽 문제입니다.
-
-```powershell
-chcp 65001
-```
-
-줄바꿈은 `.gitattributes` 로 저장소에서 LF 로 통일합니다.
-`core.autocrlf=true` 가 `gradlew` 를 CRLF 로 바꾸면 Git Bash/WSL 에서 실행되지 않습니다.
-
-## 첫 실행 후 해볼 것
-
-샘플로 드뷔시와 사티, 곡 2개가 들어갑니다. **음원은 일부러 비어 있습니다.**
-유튜브 URL 을 붙여넣고 미리보기로 확인하는 흐름이 이 앱의 핵심 작업이라, 직접 한 번 지나가 보는 게 낫습니다.
-
-1. `/admin` 로그인
-2. 곡 하나를 열어 **음원 추가**
-3. 공식 채널의 유튜브 URL 을 붙여넣고 **정보 불러오기 · 미리보기**
-4. 미리보기에서 **실제로 재생되는지 확인** — oEmbed 가 응답해도 퍼가기 금지(101/150)일 수 있습니다
-5. 저장하고 `/works/<slug>` 에서 읽으며 듣기
-
-## 구조
-
-```
+```text
 com/dbrlwns/classic/
 ├─ composer/          작곡가
-├─ work/              곡 (스토리가 붙는 단위)
-├─ recording/         음원 (YOUTUBE 임베드 / SELF_HOSTED)
-├─ external/youtube/  oEmbed 연동, URL 파서
-├─ admin/             콘텐츠 입력 화면 (Spring 에는 Django admin 이 없다)
-├─ support/           Markdown 렌더러, 슬러그
-└─ config/            보안, 샘플 데이터
+├─ work/              곡과 스토리
+├─ recording/         YouTube 임베드 및 자체 호스팅 음원
+├─ external/youtube/  YouTube URL 분석과 oEmbed 연동
+├─ admin/             콘텐츠 관리 화면
+├─ support/           Markdown 렌더러와 슬러그 처리
+└─ config/            보안과 애플리케이션 설정
 ```
 
-`src/main/resources/static/js/player.js` 는 유튜브 iframe 과 `<audio>` 를
-같은 인터페이스로 감싼 어댑터입니다. 지금은 재생만 쓰지만
-`getCurrentTime()` / `seek()` 가 노출돼 있어, 나중에 타임스탬프 주석을 붙일 때
-플레이어 코드를 다시 쓰지 않아도 됩니다.
+### 배포 구성
 
-## 저작권 방침 (요약)
+```mermaid
+flowchart LR
+    U[사용자 브라우저] -->|HTTPS| R[Railway]
+    R --> A[Spring Boot / Docker]
+    A -->|JPA| P[(PostgreSQL)]
+    A -->|oEmbed 요청| Y[YouTube]
+    A -->|Flyway migration| P
+```
 
-악곡과 음원은 **별개의 권리**입니다.
+Railway에서는 `Dockerfile`로 Spring Boot 애플리케이션을 빌드하고 PostgreSQL 서비스를 연결했습니다. 데이터베이스 접속 정보와 관리자 계정은 저장소에 기록하지 않고 환경변수로 주입했습니다.
 
-- 악곡: 1962년 말 이전 사망 작곡가는 퍼블릭 도메인
-- 음원: 연주·음반 권리가 따로 붙음. **악곡이 PD 라도 상업 녹음은 호스팅 금지**
-- 상업 녹음과 보호 중인 곡은 **유튜브 공식 채널 임베드만**
-- 오디오를 추출해 서버에 저장하지 않음
-- 스토리 본문은 사실만 참고해 직접 작성 (라이너 노트·평론은 보호 대상)
+운영 스키마는 Flyway 마이그레이션으로 변경하며, Hibernate에는 `ddl-auto: validate`를 적용했습니다. 애플리케이션이 예상하는 엔티티 구조와 실제 데이터베이스 스키마가 다르면 시작 단계에서 오류를 확인할 수 있습니다.
 
-자세한 근거는 [docs/concept.md](docs/concept.md#저작권-구조--설계의-전제) 참고.
+## 주요 설계 결정
 
-## 배포
+### 곡과 음원을 분리한 데이터 모델
 
-| 문서 | 대상 |
+`Work`는 작곡가가 만든 곡과 그 곡의 스토리를 나타내고, `Recording`은 특정 연주·영상·음원을 나타냅니다. 같은 곡에 여러 연주가 존재할 수 있으므로 두 개념을 분리했습니다.
+
+```text
+Composer 1 ── N Work 1 ── N Recording
+```
+
+### 저장 전 YouTube 영상 검증
+
+oEmbed 요청에 성공하더라도 영상 소유자가 외부 재생을 금지했으면 실제 페이지에서는 재생되지 않을 수 있습니다. 관리자 화면에 미리보기를 두어 콘텐츠를 저장하기 전에 사람이 직접 재생 가능 여부를 확인하도록 했습니다.
+
+### 플레이어 어댑터
+
+`static/js/player.js`에서 YouTube iframe과 HTML `<audio>`를 같은 인터페이스로 감쌌습니다. 현재는 재생 기능에 사용하며, 향후 곡의 특정 시점에 해설을 연결하는 기능을 추가할 때 `getCurrentTime()`과 `seek()`를 재사용할 수 있도록 구성했습니다.
+
+### 음원과 저작권 정보의 분리 관리
+
+악곡의 권리와 개별 녹음의 권리는 서로 다르므로 음원별로 소스 유형, 라이선스, 출처 URL과 표기 문구를 기록할 수 있도록 했습니다. 상업 음원을 직접 저장하지 않고 공식 YouTube 영상은 원본 플레이어로 임베드하는 방식을 사용했습니다.
+
+보다 자세한 제품 정의와 설계 배경은 [docs/concept.md](docs/concept.md)에서 확인할 수 있습니다.
+
+## 로컬 실행
+
+### 요구사항
+
+- JDK 21
+- Git
+
+### 실행
+
+macOS 또는 Linux:
+
+```bash
+./gradlew bootRun
+```
+
+Windows PowerShell:
+
+```powershell
+.\gradlew.bat bootRun
+```
+
+실행 후 다음 주소를 사용할 수 있습니다.
+
+- 서비스: <http://localhost:8080>
+- 관리자: <http://localhost:8080/admin>
+- H2 콘솔: <http://localhost:8080/h2-console>
+
+## 관리자 계정 설정
+
+공개 환경에서는 기본 계정을 사용하지 말고 환경변수로 관리자 정보를 설정해야 합니다.
+
+```bash
+ADMIN_USERNAME=your_username
+ADMIN_PASSWORD=your_password
+```
+
+로컬에서는 Git에 포함되지 않는 `src/main/resources/application-local.yml`을 사용할 수도 있습니다.
+
+```yaml
+app:
+  admin:
+    username: your_username
+    password: your_password
+```
+
+실제 비밀번호와 운영 데이터베이스 접속 정보는 저장소에 커밋하지 않습니다.
+
+## 데이터베이스와 마이그레이션
+
+- 로컬: H2 파일 데이터베이스
+- 운영: PostgreSQL
+- 스키마 변경: Flyway
+- 엔티티 검증: Hibernate `ddl-auto: validate`
+
+| 파일 | 역할 |
 |---|---|
-| [docs/deploy-railway.md](docs/deploy-railway.md) | Railway — `git push` 하면 배포. 20~30분 |
-| [docs/deploy-oracle.md](docs/deploy-oracle.md) | Oracle Cloud — 직접 띄우기. 반나절 |
+| `V1__schema.sql` | 작곡가·곡·음원 테이블 생성 |
+| `V2__seed_catalog.sql` | 초기 카탈로그 데이터 등록 |
 
-`deploy/` 의 systemd·nginx·백업 파일은 직접 띄우는 쪽에서 쓴다.
-Railway 는 `Dockerfile` 만 쓴다.
+이미 운영 환경에 적용된 마이그레이션 파일은 수정하지 않고, 스키마 변경이 필요하면 새로운 버전의 마이그레이션을 추가합니다.
 
-**두 환경에서 반대인 값이 하나 있다.** `SERVER_ADDRESS` 는 직접 띄울 때만
-`127.0.0.1` 로 가두고, PaaS 에서는 넣지 않는다(기본 `0.0.0.0`).
+## 배포 문서
 
-## 스키마 관리
-
-`ddl-auto: update` 는 쓰지 않습니다. 컬럼을 추가만 하고 rename/삭제/타입변경을
-반영하지 않아 스키마가 조용히 썩습니다. 이 프로젝트는 **스토리 원고가 DB에만 존재**하므로
-특히 위험합니다.
-
-**현재: Flyway + `ddl-auto: validate`** (로컬·운영 동일)
-
-스키마는 `src/main/resources/db/migration` 의 V 파일이 만들고, Hibernate 는
-검사만 합니다. 만드는 쪽과 검사하는 쪽이 독립적이라 둘이 어긋나면 부팅이 멈춥니다.
-
-| 파일 | 내용 |
+| 문서 | 내용 |
 |---|---|
-| `V1__schema.sql` | 테이블 셋(composer, work, recording) |
-| `V2__seed_catalog.sql` | 작곡가 12명 + 곡 38개 + 음원 + 스토리 |
+| [docs/deploy-railway.md](docs/deploy-railway.md) | Railway와 PostgreSQL을 사용한 배포 |
+| [docs/deploy-oracle.md](docs/deploy-oracle.md) | Oracle Cloud, systemd와 Nginx를 사용한 배포 |
 
-엔티티를 고치면 **반드시 새 V 파일을 같이 씁니다.** 이미 실행된 V 파일은
-고치지 않습니다 — 체크섬이 어긋나 앱이 뜨지 않습니다. V4 를 새로 쓰세요.
+## 개발 방식
 
-곡·스토리 같은 **내용** 수정은 마이그레이션이 아니라 관리 화면에서 합니다.
+이 프로젝트는 AI 코딩 도구를 적극적으로 활용해 제작한 프로토타입입니다. 제품 방향과 기능 범위를 결정하고, 생성된 결과물을 Railway와 PostgreSQL 환경에 배포해 실제 동작을 확인했습니다.
 
-### 데이터는 어디 있나
+현재는 공개 운영을 중단하고 프로젝트를 보존하고 있습니다. 이후 코드를 직접 검토하고 테스트와 구조 개선을 진행할 경우 그 변경 과정을 별도로 기록할 예정입니다.
 
-로컬은 `./data/moirai.mv.db` (H2 파일, `.gitignore` 에 있음)입니다.
-V2 가 한 번 실행된 뒤로는 **스토리의 원본이 이 파일**이고 깃에는 사본이 없습니다.
-가끔 복사해 두세요. 운영에서는 PostgreSQL 로 바꾸고 호스팅의 백업을 켭니다.
-
-DB 를 처음부터 다시 만들려면 `data/` 를 지우고 앱을 띄우면 됩니다 —
-Flyway 가 V1·V2 를 다시 실행합니다. **그때 관리 화면에서 넣은 것은 사라집니다.**
